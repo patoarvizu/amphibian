@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: amp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: controller-manager
+  namespace: system
+  labels:
+    control-plane: controller-manager
+spec:
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      containers:
+      - command:
+        - /manager
+        args:
+        - --enable-leader-election
+        image: patoarvizu/amphibian:latest
+        imagePullPolicy: IfNotPresent
+        name: manager
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        env:
+        - name: TERRAFORM_CLOUD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: terraform-cloud-token
+              key: token
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-secrets
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-secrets
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_REGION
+          value: us-east-1
+        - name: TF_CLI_CONFIG_FILE
+          value: /terraform/.terraformrc
+        volumeMounts:
+        - mountPath: /terraform
+          name: terraform
+      volumes:
+      - name: terraform
+        emptyDir:
+          medium: Memory
+      terminationGracePeriodSeconds: 10

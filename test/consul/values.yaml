@@ -1,0 +1,14 @@
+global:
+  name: consul
+  image: consul:1.8.4
+  imageK8s: hashicorp/consul-k8s:0.18.1
+  acls:
+    manageSystemACLs: true
+server:
+  replicas: 1
+  bootstrapExpect: 1
+  connect: false
+client:
+  enabled: false
+meshGateway:
+  enabled: false

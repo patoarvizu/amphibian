@@ -36,6 +36,29 @@ spec:
           type: object
         spec:
           properties:
+            consulConfig:
+              properties:
+                accessToken:
+                  type: string
+                address:
+                  type: string
+                caFile:
+                  type: string
+                certFile:
+                  type: string
+                datacenter:
+                  type: string
+                httpAuth:
+                  type: string
+                keyFile:
+                  type: string
+                path:
+                  type: string
+                scheme:
+                  type: string
+              required:
+              - path
+              type: object
             remoteConfig:
               properties:
                 hostname:

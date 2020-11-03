@@ -53,6 +53,11 @@ spec:
             secretKeyRef:
               name: aws-secrets
               key: AWS_SECRET_ACCESS_KEY
+        - name: CONSUL_HTTP_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: consul-token
+              key: token
         - name: AWS_REGION
           value: us-east-1
         - name: TF_CLI_CONFIG_FILE

@@ -67,10 +67,23 @@ type S3Config struct {
 	WorkspaceKeyPrefix          string            `json:"workspaceKeyPrefix,omitempty"`
 }
 
+type ConsulConfig struct {
+	Path        string `json:"path"`
+	AccessToken string `json:"accessToken,omitempty"`
+	Address     string `json:"address,omitempty"`
+	Scheme      string `json:"scheme,omitempty"`
+	Datacenter  string `json:"datacenter,omitempty"`
+	HTTPAuth    string `json:"httpAuth,omitempty"`
+	CAFile      string `json:"caFile,omitempty"`
+	CertFile    string `json:"certFile,omitempty"`
+	KeyFile     string `json:"keyFile,omitempty"`
+}
+
 type TerraformStateSpec struct {
 	Type         string       `json:"type"`
 	RemoteConfig RemoteConfig `json:"remoteConfig,omitempty"`
 	S3Config     S3Config     `json:"s3Config,omitempty"`
+	ConsulConfig ConsulConfig `json:"consulConfig,omitempty"`
 	Target       Target       `json:"target,omitempty"`
 }
 

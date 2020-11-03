@@ -84,6 +84,8 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		dataBody.SetAttributeValue("config", createRemoteBackendBody(state.Spec.RemoteConfig))
 	case "s3":
 		dataBody.SetAttributeValue("config", createS3BackendBody(state.Spec.S3Config))
+	case "consul":
+		dataBody.SetAttributeValue("config", createConsulBackendBody(state.Spec.ConsulConfig))
 	}
 	dataFile, err := os.Create("/terraform/data.tf")
 	if err != nil {
@@ -262,6 +264,36 @@ func createS3BackendBody(config terraformv1.S3Config) cty.Value {
 	configMap["skip_region_validation"] = cty.BoolVal(config.SkipRegionValidation)
 	configMap["skip_metadata_api_check"] = cty.BoolVal(config.SkipMetadataAPICheck)
 	configMap["force_path_style"] = cty.BoolVal(config.ForcePathStyle)
+	return cty.ObjectVal(configMap)
+}
+
+func createConsulBackendBody(config terraformv1.ConsulConfig) cty.Value {
+	configMap := make(map[string]cty.Value)
+	configMap["path"] = cty.StringVal(config.Path)
+	if len(config.AccessToken) > 0 {
+		configMap["access_token"] = cty.StringVal(config.AccessToken)
+	}
+	if len(config.Address) > 0 {
+		configMap["address"] = cty.StringVal(config.Address)
+	}
+	if len(config.Scheme) > 0 {
+		configMap["scheme"] = cty.StringVal(config.Scheme)
+	}
+	if len(config.Datacenter) > 0 {
+		configMap["datacenter"] = cty.StringVal(config.Datacenter)
+	}
+	if len(config.HTTPAuth) > 0 {
+		configMap["http_auth"] = cty.StringVal(config.HTTPAuth)
+	}
+	if len(config.CAFile) > 0 {
+		configMap["ca_file"] = cty.StringVal(config.CAFile)
+	}
+	if len(config.CertFile) > 0 {
+		configMap["cert_file"] = cty.StringVal(config.CertFile)
+	}
+	if len(config.KeyFile) > 0 {
+		configMap["key_file"] = cty.StringVal(config.KeyFile)
+	}
 	return cty.ObjectVal(configMap)
 }
 

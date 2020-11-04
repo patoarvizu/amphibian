@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 
@@ -57,8 +58,15 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	ctx := context.Background()
 	_ = r.Log.WithValues("terraformstate", req.NamespacedName)
 
+	baseDir := "/terraform"
+	stateDir := fmt.Sprintf("%s/%s/%s", baseDir, req.Namespace, req.Name)
+	err := os.MkdirAll(stateDir, 0777)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
 	state := &terraformv1.TerraformState{}
-	err := r.Get(ctx, req.NamespacedName, state)
+	err = r.Get(ctx, req.NamespacedName, state)
 
 	if state.Spec.Type == "remote" {
 		f, err := os.Create("/terraform/.terraformrc")
@@ -87,7 +95,7 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	case "consul":
 		dataBody.SetAttributeValue("config", createConsulBackendBody(state.Spec.ConsulConfig))
 	}
-	dataFile, err := os.Create("/terraform/data.tf")
+	dataFile, err := os.Create(fmt.Sprintf("%s/data.tf", stateDir))
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -112,7 +120,7 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 			Name: "outputs",
 		},
 	})
-	outputsFile, err := os.Create("/terraform/outputs.tf")
+	outputsFile, err := os.Create(fmt.Sprintf("%s/outputs.tf", stateDir))
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -120,14 +128,14 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	outputsFile.Write(outputs.Bytes())
 
 	cmd := exec.Command("terraform", "apply", "-auto-approve")
-	cmd.Dir = "/terraform"
+	cmd.Dir = stateDir
 	err = cmd.Run()
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
 	cmd = exec.Command("terraform", "output", "-json")
-	cmd.Dir = "/terraform"
+	cmd.Dir = stateDir
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err = cmd.Run()

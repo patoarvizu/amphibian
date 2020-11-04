@@ -33,8 +33,8 @@ type RemoteConfig struct {
 }
 
 type Target struct {
-	NamespaceName string `json:"namespace,omitempty"`
-	ConfigMapName string `json:"configMapName,omitempty"`
+	NamespaceName string `json:"namespace"`
+	ConfigMapName string `json:"configMapName"`
 }
 
 type S3Config struct {
@@ -84,7 +84,7 @@ type TerraformStateSpec struct {
 	RemoteConfig RemoteConfig `json:"remoteConfig,omitempty"`
 	S3Config     S3Config     `json:"s3Config,omitempty"`
 	ConsulConfig ConsulConfig `json:"consulConfig,omitempty"`
-	Target       Target       `json:"target,omitempty"`
+	Target       Target       `json:"target"`
 }
 
 type TerraformStateStatus struct{}

@@ -157,6 +157,8 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	err = r.Get(ctx, types.NamespacedName{Namespace: state.Spec.Target.NamespaceName, Name: state.Spec.Target.ConfigMapName}, configMap)
 	if err != nil {
 		if errors.IsNotFound(err) {
+			configMap.ObjectMeta.Namespace = state.Spec.Target.NamespaceName
+			configMap.ObjectMeta.Name = state.Spec.Target.ConfigMapName
 			configMap.Data = configMapData
 			err = r.Create(ctx, configMap)
 			if err != nil {

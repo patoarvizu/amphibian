@@ -142,15 +142,13 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	}
 
 	configMapData := make(map[string]string)
+	for k, v := range tfOutputs.Outputs.Value {
+		configMapData[k] = v
+	}
 	configMap := &corev1.ConfigMap{}
 	err = r.Get(ctx, types.NamespacedName{Namespace: state.Spec.Target.NamespaceName, Name: state.Spec.Target.ConfigMapName}, configMap)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			configMap.ObjectMeta.Namespace = state.Spec.Target.NamespaceName
-			configMap.ObjectMeta.Name = state.Spec.Target.ConfigMapName
-			for k, v := range tfOutputs.Outputs.Value {
-				configMapData[k] = v
-			}
 			configMap.Data = configMapData
 			err = r.Create(ctx, configMap)
 			if err != nil {
@@ -158,9 +156,6 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 			}
 		}
 		return ctrl.Result{}, err
-	}
-	for k, v := range tfOutputs.Outputs.Value {
-		configMapData[k] = v
 	}
 	configMap.Data = configMapData
 	err = r.Update(ctx, configMap)
@@ -178,123 +173,123 @@ func (r *TerraformStateReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 func createRemoteBackendBody(config terraformv1.RemoteConfig) cty.Value {
-	configMap := make(map[string]cty.Value)
-	configMap["hostname"] = cty.StringVal(config.Hostname)
-	configMap["organization"] = cty.StringVal(config.Organization)
+	c := make(map[string]cty.Value)
+	c["hostname"] = cty.StringVal(config.Hostname)
+	c["organization"] = cty.StringVal(config.Organization)
 	if len(config.Workspaces.Prefix) > 0 {
-		configMap["workspaces"] = cty.ObjectVal(map[string]cty.Value{
+		c["workspaces"] = cty.ObjectVal(map[string]cty.Value{
 			"prefix": cty.StringVal(config.Workspaces.Prefix),
 		})
 	} else {
-		configMap["workspaces"] = cty.ObjectVal(map[string]cty.Value{
+		c["workspaces"] = cty.ObjectVal(map[string]cty.Value{
 			"name": cty.StringVal(config.Workspaces.Name),
 		})
 	}
-	return cty.ObjectVal(configMap)
+	return cty.ObjectVal(c)
 }
 
 func createS3BackendBody(config terraformv1.S3Config) cty.Value {
-	configMap := make(map[string]cty.Value)
-	configMap["bucket"] = cty.StringVal(config.Bucket)
-	configMap["key"] = cty.StringVal(config.Key)
+	c := make(map[string]cty.Value)
+	c["bucket"] = cty.StringVal(config.Bucket)
+	c["key"] = cty.StringVal(config.Key)
 	if len(config.Region) > 0 {
-		configMap["region"] = cty.StringVal(config.Region)
+		c["region"] = cty.StringVal(config.Region)
 	}
 	if len(config.AccessKey) > 0 {
-		configMap["access_key"] = cty.StringVal(config.AccessKey)
+		c["access_key"] = cty.StringVal(config.AccessKey)
 	}
 	if len(config.SecretKey) > 0 {
-		configMap["secret_key"] = cty.StringVal(config.SecretKey)
+		c["secret_key"] = cty.StringVal(config.SecretKey)
 	}
 	if len(config.IAMEndpoint) > 0 {
-		configMap["iam_endpoint"] = cty.StringVal(config.IAMEndpoint)
+		c["iam_endpoint"] = cty.StringVal(config.IAMEndpoint)
 	}
 	if config.MaxRetries > 0 {
-		configMap["max_retries"] = cty.NumberIntVal(config.MaxRetries)
+		c["max_retries"] = cty.NumberIntVal(config.MaxRetries)
 	}
 	if len(config.Profile) > 0 {
-		configMap["profile"] = cty.StringVal(config.Profile)
+		c["profile"] = cty.StringVal(config.Profile)
 	}
 	if len(config.SharedCredentialsFile) > 0 {
-		configMap["shared_credentials_file"] = cty.StringVal(config.SharedCredentialsFile)
+		c["shared_credentials_file"] = cty.StringVal(config.SharedCredentialsFile)
 	}
 	if len(config.STSEndpoint) > 0 {
-		configMap["sts_endpoint"] = cty.StringVal(config.STSEndpoint)
+		c["sts_endpoint"] = cty.StringVal(config.STSEndpoint)
 	}
 	if len(config.Token) > 0 {
-		configMap["token"] = cty.StringVal(config.Token)
+		c["token"] = cty.StringVal(config.Token)
 	}
 	if config.AssumeRoleDurationSeconds > 0 {
-		configMap["assume_role_duration_seconds"] = cty.NumberIntVal(config.AssumeRoleDurationSeconds)
+		c["assume_role_duration_seconds"] = cty.NumberIntVal(config.AssumeRoleDurationSeconds)
 	}
 	if len(config.AssumeRolePolicy) > 0 {
-		configMap["assume_role_policy"] = cty.StringVal(config.AssumeRolePolicy)
+		c["assume_role_policy"] = cty.StringVal(config.AssumeRolePolicy)
 	}
 	if len(config.AssumeRolePolicyARNs) > 0 {
-		configMap["assume_role_policy_arns"] = cty.ListVal(createValueList(config.AssumeRolePolicyARNs))
+		c["assume_role_policy_arns"] = cty.ListVal(createValueList(config.AssumeRolePolicyARNs))
 	}
 	if len(config.AssumeRoleTags) > 0 {
-		configMap["assume_role_tags"] = cty.MapVal(createValueMap(config.AssumeRoleTags))
+		c["assume_role_tags"] = cty.MapVal(createValueMap(config.AssumeRoleTags))
 	}
 	if len(config.AssumeRoleTransitiveTagKeys) > 0 {
-		configMap["assume_role_transitive_tag_keys"] = cty.ListVal(createValueList(config.AssumeRoleTransitiveTagKeys))
+		c["assume_role_transitive_tag_keys"] = cty.ListVal(createValueList(config.AssumeRoleTransitiveTagKeys))
 	}
 	if len(config.ExternalID) > 0 {
-		configMap["external_id"] = cty.StringVal(config.ExternalID)
+		c["external_id"] = cty.StringVal(config.ExternalID)
 	}
 	if len(config.RoleARN) > 0 {
-		configMap["role_arn"] = cty.StringVal(config.RoleARN)
+		c["role_arn"] = cty.StringVal(config.RoleARN)
 	}
 	if len(config.SessionName) > 0 {
-		configMap["session_name"] = cty.StringVal(config.SessionName)
+		c["session_name"] = cty.StringVal(config.SessionName)
 	}
 	if len(config.Endpoint) > 0 {
-		configMap["endpoint"] = cty.StringVal(config.Endpoint)
+		c["endpoint"] = cty.StringVal(config.Endpoint)
 	}
 	if len(config.KMSKeyID) > 0 {
-		configMap["kms_key_id"] = cty.StringVal(config.KMSKeyID)
+		c["kms_key_id"] = cty.StringVal(config.KMSKeyID)
 	}
 	if len(config.SSECustomerKey) > 0 {
-		configMap["sse_customer_key"] = cty.StringVal(config.SSECustomerKey)
+		c["sse_customer_key"] = cty.StringVal(config.SSECustomerKey)
 	}
 	if len(config.WorkspaceKeyPrefix) > 0 {
-		configMap["workspace_key_prefix"] = cty.StringVal(config.WorkspaceKeyPrefix)
+		c["workspace_key_prefix"] = cty.StringVal(config.WorkspaceKeyPrefix)
 	}
-	configMap["skip_credentials_validation"] = cty.BoolVal(config.SkipCredentialsValidation)
-	configMap["skip_region_validation"] = cty.BoolVal(config.SkipRegionValidation)
-	configMap["skip_metadata_api_check"] = cty.BoolVal(config.SkipMetadataAPICheck)
-	configMap["force_path_style"] = cty.BoolVal(config.ForcePathStyle)
-	return cty.ObjectVal(configMap)
+	c["skip_credentials_validation"] = cty.BoolVal(config.SkipCredentialsValidation)
+	c["skip_region_validation"] = cty.BoolVal(config.SkipRegionValidation)
+	c["skip_metadata_api_check"] = cty.BoolVal(config.SkipMetadataAPICheck)
+	c["force_path_style"] = cty.BoolVal(config.ForcePathStyle)
+	return cty.ObjectVal(c)
 }
 
 func createConsulBackendBody(config terraformv1.ConsulConfig) cty.Value {
-	configMap := make(map[string]cty.Value)
-	configMap["path"] = cty.StringVal(config.Path)
+	c := make(map[string]cty.Value)
+	c["path"] = cty.StringVal(config.Path)
 	if len(config.AccessToken) > 0 {
-		configMap["access_token"] = cty.StringVal(config.AccessToken)
+		c["access_token"] = cty.StringVal(config.AccessToken)
 	}
 	if len(config.Address) > 0 {
-		configMap["address"] = cty.StringVal(config.Address)
+		c["address"] = cty.StringVal(config.Address)
 	}
 	if len(config.Scheme) > 0 {
-		configMap["scheme"] = cty.StringVal(config.Scheme)
+		c["scheme"] = cty.StringVal(config.Scheme)
 	}
 	if len(config.Datacenter) > 0 {
-		configMap["datacenter"] = cty.StringVal(config.Datacenter)
+		c["datacenter"] = cty.StringVal(config.Datacenter)
 	}
 	if len(config.HTTPAuth) > 0 {
-		configMap["http_auth"] = cty.StringVal(config.HTTPAuth)
+		c["http_auth"] = cty.StringVal(config.HTTPAuth)
 	}
 	if len(config.CAFile) > 0 {
-		configMap["ca_file"] = cty.StringVal(config.CAFile)
+		c["ca_file"] = cty.StringVal(config.CAFile)
 	}
 	if len(config.CertFile) > 0 {
-		configMap["cert_file"] = cty.StringVal(config.CertFile)
+		c["cert_file"] = cty.StringVal(config.CertFile)
 	}
 	if len(config.KeyFile) > 0 {
-		configMap["key_file"] = cty.StringVal(config.KeyFile)
+		c["key_file"] = cty.StringVal(config.KeyFile)
 	}
-	return cty.ObjectVal(configMap)
+	return cty.ObjectVal(c)
 }
 
 func createValueList(l []string) []cty.Value {

@@ -7,9 +7,9 @@
   - [Design](#design)
   - [Configuration](#configuration)
     - [Backends](#backends)
-      - [[Remote (Terraform Cloud)](https://www.terraform.io/docs/backends/types/remote.html) (`type: remote`, `remoteConfig`)](#remote-terraform-cloudhttpswwwterraformiodocsbackendstypesremotehtml-type-remote-remoteconfig)
-      - [[S3](https://www.terraform.io/docs/backends/types/s3.html) (`type: s3`, `s3Config`)](#s3httpswwwterraformiodocsbackendstypess3html-type-s3-s3config)
-      - [[Consul](https://www.terraform.io/docs/backends/types/consul.html) (`type: consul`, `consulConfig`)](#consulhttpswwwterraformiodocsbackendstypesconsulhtml-type-consul-consulconfig)
+      - [Remote (Terraform Cloud)](#remote-terraform-cloud)
+      - [S3](#s3)
+      - [Consul](#consul)
     - [Target](#target)
 
 <!-- /TOC -->
@@ -38,11 +38,19 @@ The configuration required to discover the state will depend on the type of back
 
 ### Backends
 
-#### [Remote (Terraform Cloud)](https://www.terraform.io/docs/backends/types/remote.html) (`type: remote`, `remoteConfig`)
+#### Remote (Terraform Cloud)
+
+- [Documentation](https://www.terraform.io/docs/backends/types/remote.html)
+- `type: remote`
+- Configuration block name: `remoteConfig`
 
 The only additional option required for this backend type is the Terraform Cloud token. This needs to be injected as an environment variable called `TERRAFORM_CLOUD_TOKEN`.
 
-#### [S3](https://www.terraform.io/docs/backends/types/s3.html) (`type: s3`, `s3Config`)
+#### S3
+
+- [Documentation](https://www.terraform.io/docs/backends/types/s3.html)
+- `type: s3`
+- Configuration block name: `s3Config`
 
 The following fields can be alternatively be set as environment variables (as documented in the link above):
 
@@ -63,7 +71,11 @@ Lastly, the following options are not available since they're irrelevant for loo
 - `dynamodb_endpoint`
 - `dynamodb_table`
 
-#### [Consul](https://www.terraform.io/docs/backends/types/consul.html) (`type: consul`, `consulConfig`)
+#### Consul
+
+- [Documentation](https://www.terraform.io/docs/backends/types/consul.html)
+- `type: consul`
+- Configuration block name: `consulConfig`
 
 The following fields can be alternatively be set as environment variables (as documented in the link above):
 

@@ -4,6 +4,7 @@
 
 - [Amphibian](#amphibian)
   - [Intro](#intro)
+  - [Design](#design)
   - [Configuration](#configuration)
     - [Backends](#backends)
       - [[Remote (Terraform Cloud)](https://www.terraform.io/docs/backends/types/remote.html) (`type: remote`, `remoteConfig`)](#remote-terraform-cloudhttpswwwterraformiodocsbackendstypesremotehtml-type-remote-remoteconfig)
@@ -15,9 +16,21 @@
 
 ## Intro
 
-Similar to how [amphibians](https://en.wikipedia.org/wiki/Amphibian) can inhabit both land and water, this project aims to close the interface gap between Terraform outputs and Kubernetes configuration discovery. The existing [terraform-helm](https://github.com/hashicorp/terraform-helm) and [aws-controllers-k8s](https://github.com/aws/aws-controllers-k8s) projects don't yet have the full functionality and flexibility that Amphibian provides.
+The adoption of Terraform in many organizations predates the adoption of Kubernetes, or in some cases they're separate efforts owned by different teams. In addition to that, the integration between both systems consists of manual copy/pasting of values, since there's no clearly defined discovery mechanism between the two.
+
+Just like [amphibians](https://en.wikipedia.org/wiki/Amphibian) can inhabit both land and water, this project aims to close the interface gap between Terraform outputs and Kubernetes configuration discovery. The existing [terraform-helm](https://github.com/hashicorp/terraform-helm) and [aws-controllers-k8s](https://github.com/aws/aws-controllers-k8s) projects don't yet have the full functionality and flexibility that Amphibian provides.
 
 A [Custom resource](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) of kind `TerraformState` deployed on Kubernetes clusters will create a new `ConfigMap` and populate it with the [outputs](https://www.terraform.io/docs/configuration/outputs.html) of the corresponding remote Terraform state.
+
+## Design
+
+Even though Terraform has a `struct` for capturing a module's [output values](https://github.com/hashicorp/terraform/blob/v0.13.5/states/output_value.go) programmatically, that API can't be considered public and guaranteed.
+
+Since the only guaranteed interface is the command line, the way this controller gets the outputs from the remote state is by creating a `data.tf` and an `outputs.tf` file, running `terraform apply`, followed by `terraform output -json`, and then unmarshaling that output back into a Go `struct`. The controller then uses those outputs to create a new configmap in the location defined by `target`, that has the exact contents returned by Terraform.
+
+**Note:** Keep in mind that Terraform only returns the [root-level outputs](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/data-sources/remote_state#root-outputs-only). If you need to consume the outputs of a submodule, you'll have to expose it all the way to the root level so they can be discovered in Kubernetes.
+
+Since a single controller can handle multiple `TerraformState` objects, each different set of `data.tf`/`outputs.tf` set of files is created in a subdirectory corresponding to its namespace and name, to avoid collisions and overwrites between resources. However, this should generally be transparent to the end user, and the choice of name or namespace shouldn't have any effect.
 
 ## Configuration
 

@@ -4,7 +4,6 @@ go 1.13
 
 require (
 	github.com/go-logr/logr v0.1.0
-	github.com/google/martian v2.1.0+incompatible
 	github.com/hashicorp/hcl2 v0.0.0-20191002203319-fb75b3253c80
 	github.com/onsi/ginkgo v1.12.1
 	github.com/onsi/gomega v1.10.1

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: consul-ext
+spec:
+  ports:
+  - port: 8500
+    protocol: TCP
+    targetPort: 8500
+    nodePort: 30058
+  selector:
+    app: consul
+    release: "consul"
+    component: server
+  type: NodePort

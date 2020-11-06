@@ -1,0 +1,3 @@
+helmfiles:
+- path: consul/helmfile.yaml
+- path: consul-service/helmfile.yaml

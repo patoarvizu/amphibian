@@ -10,7 +10,7 @@ executors:
       KUBECTL_VERSION: 1.12.0
       K3D_VERSION: 3.0.0
       HELMFILE_VERSION: 0.129.3
-      TERRAFORM_VERSION: 0.13.5
+      TERRAFORM_VERSION: 0.12.13
       GOPATH: /home/circleci/go
       GO111MODULE: "on"
       DOCKER_CLI_EXPERIMENTAL: enabled

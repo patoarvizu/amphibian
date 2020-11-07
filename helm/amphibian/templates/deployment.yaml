@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: amphibian
+  name: amphibian
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: amphibian
+  template:
+    metadata:
+      labels:
+        app: amphibian
+      {{- if .Values.podAnnotations }}
+      annotations: {{ toYaml .Values.podAnnotations | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: amphibian  
+      containers:
+      - args:
+        - --enable-leader-election
+        command:
+        - /manager
+        env:
+        - name: TF_CLI_CONFIG_FILE
+          value: /terraform/.terraformrc
+        - name: WATCH_NAMESPACE
+          value: {{ .Values.watchNamespace | quote }}
+        {{- toYaml .Values.authEnvVars | nindent 8 }}
+        image: patoarvizu/amphibian:{{ .Values.imageVersion }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        name: manager
+        resources: {{ toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - mountPath: /terraform
+          name: terraform
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: terraform

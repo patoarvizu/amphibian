@@ -1,0 +1,23 @@
+authEnvVars:
+- name: TERRAFORM_CLOUD_TOKEN
+  valueFrom:
+    secretKeyRef:
+      key: token
+      name: terraform-cloud-token
+- name: AWS_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      key: AWS_ACCESS_KEY_ID
+      name: aws-secrets
+- name: AWS_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      key: AWS_SECRET_ACCESS_KEY
+      name: aws-secrets
+- name: CONSUL_HTTP_TOKEN
+  valueFrom:
+    secretKeyRef:
+      key: token
+      name: consul-token
+- name: AWS_REGION
+  value: us-east-1

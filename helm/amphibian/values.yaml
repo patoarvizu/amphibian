@@ -1,0 +1,14 @@
+# imageVersion -- The image version used for the operator.
+imageVersion: latest
+# imagePullPolicy -- The imagePullPolicy to be used on the operator.
+imagePullPolicy: IfNotPresent
+# watchNamespace -- The value to be set on the `WATCH_NAMESPACE` environment variable.
+watchNamespace: ""
+# defaultConfiguration -- The values to be used for the default `vault-dynamic-configuration` `ConfigMap`.
+prometheusMonitoring:
+  # prometheusMonitoring.enable -- Create the `Service` and `ServiceMonitor` objects to enable Prometheus monitoring on the operator.
+  enable: false
+# authEnvVars -- Environment variables required for remote state backend authentication. This is a slice of [`v1.EnvVar`](https://pkg.go.dev/k8s.io/api/core/v1#EnvVar)s.
+authEnvVars:
+# resources -- (object) The resources requests/limits to be set on the deployment pod spec template.
+resources:

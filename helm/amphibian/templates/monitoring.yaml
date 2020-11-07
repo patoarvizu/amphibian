@@ -1,0 +1,33 @@
+{{- if .Values.prometheusMonitoring.enable }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: amphibian-metrics
+  labels:
+    app: amphibian
+spec:
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: http-metrics
+    name: http-metrics
+  selector:
+    app: amphibian
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: amphibian-metrics
+spec:
+  endpoints:
+  - path: /metrics
+    port: http-metrics
+  selector:
+    matchLabels:
+      app: amphibian
+
+{{ end }}

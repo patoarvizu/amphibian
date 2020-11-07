@@ -1,3 +1,5 @@
 helmfiles:
+- path: secrets/helmfile.yaml
 - path: consul/helmfile.yaml
 - path: consul-service/helmfile.yaml
+- path: amphibian/helmfile.yaml

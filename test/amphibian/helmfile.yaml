@@ -1,0 +1,12 @@
+releases:
+- name: amphibian
+  namespace: amp
+  chart: ../../helm/amphibian
+  values:
+  - values/values.yaml
+
+helmDefaults:
+  kubeContext: k3d-k3s-default
+  args:
+  - --kubeconfig
+  - {{ requiredEnv "HOME" }}/.k3d/k3s-default-config

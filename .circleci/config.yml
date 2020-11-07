@@ -76,7 +76,7 @@ jobs:
           k3d image import patoarvizu/amphibian:latest
           cd test/consul && helmfile sync
           cd ../consul-service && helmfile sync
-          export CONSUL_HTTP_TOKEN=$(kubectl -n consul get secret consul-bootstrap-acl-token -o json | jq -r '.data.token' | base64 -D)
+          export CONSUL_HTTP_TOKEN=$(kubectl -n consul get secret consul-bootstrap-acl-token -o json | jq -r '.data.token' | base64 -d)
           cd ../consul-state && terraform init && terraform apply -auto-approve
           export AMP_CONSUL_TOKEN=${CONSUL_HTTP_TOKEN}
           cd ../secrets && helmfile sync

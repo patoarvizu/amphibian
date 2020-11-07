@@ -9,6 +9,8 @@ executors:
       NOTARY_VERSION: 0.6.1
       KUBECTL_VERSION: 1.12.0
       K3D_VERSION: 3.0.0
+      HELMFILE_VERSION: 0.129.3
+      TERRAFORM_VERSION: 0.13.5
       GOPATH: /home/circleci/go
       GO111MODULE: "on"
       DOCKER_CLI_EXPERIMENTAL: enabled
@@ -54,11 +56,36 @@ jobs:
           chmod +x linux-amd64/helm
           sudo mv linux-amd64/helm /usr/local/bin/
     - run:
-        name: Run all tests
+        name: Install helmfile
+        command: |
+          curl -L https://github.com/roboll/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_linux_amd64 -o helmfile
+          chmod +x helmfile
+          sudo mv helmfile /usr/local/bin
+    - run:
+        name: Install terraform
+        command: |
+          curl -L https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip
+          unzip terraform.zip
+          chmod +x terraform
+          sudo mv terraform /usr/local/bin
+    - run:
+        name: Setup environment
         command: |
           export KUBECONFIG=~/.k3d/k3s-default-config
           k3d cluster create --port 8500:30058@server[0] --wait
           k3d image import patoarvizu/amphibian:latest
+          cd test/consul && helmfile sync
+          cd ../consul-service && helmfile sync
+          export CONSUL_HTTP_TOKEN=$(kubectl -n consul get secret consul-bootstrap-acl-token -o json | jq -r '.data.token' | base64 -D)
+          cd ../consul-state && terraform init && terraform apply -auto-approve
+          export AMP_CONSUL_TOKEN=${CONSUL_HTTP_TOKEN}
+          cd ../secrets && helmfile sync
+          cd ../amphibian && helmfile sync
+    - run:
+        name: Run tests
+        command: |
+          export KUBECONFIG=~/.k3d/k3s-default-config
+          go test github.com/patoarvizu/amphibian/test/e2e -v -count=1
     - save_cache:
         key: amphibian-golang-cache-{{ checksum "go.sum" }}
         paths:
@@ -69,65 +96,6 @@ jobs:
           curl -L https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 -o notary
           chmod +x notary
           sudo mv notary /usr/local/bin
-    # - run:
-    #     name: Build operator
-    #     command: |
-    #       docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_ACCESS_TOKEN
-    #       echo $ENCODED_NOTARY_ROLE_KEY | base64 -d > ${HOME}/amphibian-circleci.key
-    #       export NOTARY_DELEGATION_PASSPHRASE=$NOTARY_ROLE_PASSPHRASE
-    #       notary -s https://notary.docker.io -d ~/.docker/trust key import ${HOME}/amphibian-circleci.key --role amphibian-circleci
-    #       export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$NOTARY_DELEGATION_PASSPHRASE
-    #       OPERATOR_BUILD_ARGS="--build-arg GIT_COMMIT=$CIRCLE_SHA1 --build-arg GIT_TAG=$CIRCLE_TAG --build-arg COMMIT_TIMESTAMP=$(git log -1 --format=%at) --build-arg AUTHOR_EMAIL=$(git log -1 --format=%ae) --build-arg SIGNATURE_KEY=$(git log -1 --format=%GK)"
-    #       export DOCKER_CONTENT_TRUST=1
-    #       VERSION=${CIRCLE_TAG:-latest}
-    #       docker buildx build --progress=plain --platform=linux/amd64 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-amd64 -t patoarvizu/amphibian:$CIRCLE_SHA1-amd64 -t patoarvizu/amphibian:$VERSION-amd64
-    #       docker push patoarvizu/amphibian:latest-amd64
-    #       docker push patoarvizu/amphibian:$CIRCLE_SHA1-amd64
-    #       docker push patoarvizu/amphibian:$VERSION-amd64
-    #     no_output_timeout: 30m
-
-  # push-multi-arch:
-  #   executor: vm
-  #   steps:
-  #   - checkout
-  #   - run:
-  #       name: Install notary
-  #       command: |
-  #         curl -L https://github.com/theupdateframework/notary/releases/download/v0.6.1/notary-Linux-amd64 -o notary
-  #         chmod +x notary
-  #         sudo mv notary /usr/local/bin
-  #   - run:
-  #       name: Push multi-arch images
-  #       command: |
-  #         sudo apt-get update
-  #         sudo apt-get install qemu-user -y
-  #         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-  #         docker buildx create --name cci-builder --use
-  #         docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_ACCESS_TOKEN
-  #         echo $ENCODED_NOTARY_ROLE_KEY | base64 -d > ${HOME}/amphibian-circleci.key
-  #         export NOTARY_DELEGATION_PASSPHRASE=$NOTARY_ROLE_PASSPHRASE
-  #         notary -s https://notary.docker.io -d ~/.docker/trust key import ${HOME}/amphibian-circleci.key --role amphibian-circleci
-  #         export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$NOTARY_DELEGATION_PASSPHRASE
-  #         OPERATOR_BUILD_ARGS="--build-arg GIT_COMMIT=$CIRCLE_SHA1 --build-arg GIT_TAG=$CIRCLE_TAG --build-arg COMMIT_TIMESTAMP=$(git log -1 --format=%at) --build-arg AUTHOR_EMAIL=$(git log -1 --format=%ae) --build-arg SIGNATURE_KEY=$(git log -1 --format=%GK)"
-  #         export DOCKER_CONTENT_TRUST=1
-  #         VERSION=${CIRCLE_TAG:-latest}
-  #         docker buildx build --progress=plain --platform=linux/arm64 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-arm64 -t patoarvizu/amphibian:$CIRCLE_SHA1-arm64 -t patoarvizu/amphibian:$VERSION-arm64
-  #         docker buildx build --progress=plain --platform=linux/arm/v7 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-arm7 -t patoarvizu/amphibian:$CIRCLE_SHA1-arm7 -t patoarvizu/amphibian:$VERSION-arm7
-  #         docker push patoarvizu/amphibian:latest-arm64
-  #         docker push patoarvizu/amphibian:$CIRCLE_SHA1-arm64
-  #         docker push patoarvizu/amphibian:$VERSION-arm64
-  #         docker push patoarvizu/amphibian:latest-arm7
-  #         docker push patoarvizu/amphibian:$CIRCLE_SHA1-arm7
-  #         docker push patoarvizu/amphibian:$VERSION-arm7
-  #         docker buildx build --progress=plain --platform=linux/amd64,linux/arm64,linux/arm/v7 --push $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest -t patoarvizu/amphibian:$CIRCLE_SHA1 -t patoarvizu/amphibian:$VERSION
-  #         DIGEST=$(docker buildx imagetools inspect patoarvizu/amphibian:$CIRCLE_SHA1 | grep Digest | cut -d':' -f3)
-  #         LENGTH=$(( $(docker buildx imagetools inspect patoarvizu/amphibian:$CIRCLE_SHA1 --raw | wc -c) - 1 ))
-  #         export NOTARY_AUTH=$(echo $DOCKER_HUB_USER:$DOCKER_HUB_ACCESS_TOKEN | base64)
-  #         notary -s https://notary.docker.io -d ~/.docker/trust addhash -p docker.io/patoarvizu/amphibian latest $LENGTH --sha256 $DIGEST -r targets/releases
-  #         notary -s https://notary.docker.io -d ~/.docker/trust addhash -p docker.io/patoarvizu/amphibian $CIRCLE_SHA1 $LENGTH --sha256 $DIGEST -r targets/releases
-  #         notary -s https://notary.docker.io -d ~/.docker/trust addhash -p docker.io/patoarvizu/amphibian $VERSION $LENGTH --sha256 $DIGEST -r targets/releases
-  #       no_output_timeout: 30m
-
 workflows:
   version: 2
   build-operator:
@@ -137,13 +105,3 @@ workflows:
         filters:
           tags:
             only: /^v\d+\.\d+.\d+$/
-    # - push-multi-arch:
-    #     requires:
-    #     - build
-    #     context: authentication-tokens
-    #     filters:
-    #       branches:
-    #         ignore: /^.*$/
-    #         only: /^master$/
-    #       tags:
-    #         only: /^v\d+\.\d+.\d+$/

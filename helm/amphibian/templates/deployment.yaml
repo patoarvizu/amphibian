@@ -28,7 +28,9 @@ spec:
           value: /terraform/.terraformrc
         - name: WATCH_NAMESPACE
           value: {{ .Values.watchNamespace | quote }}
+        {{- if .Values.authEnvVars }}
         {{- toYaml .Values.authEnvVars | nindent 8 }}
+        {{- end }}
         image: patoarvizu/amphibian:{{ .Values.imageVersion }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
         name: manager

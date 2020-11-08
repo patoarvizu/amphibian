@@ -67,6 +67,12 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 
 	state := &terraformv1.TerraformState{}
 	err = r.Get(ctx, req.NamespacedName, state)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
 
 	if state.Spec.Type == "remote" {
 		f, err := os.Create("/terraform/.terraformrc")

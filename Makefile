@@ -25,6 +25,22 @@ endif
 
 all: manager
 
+k3d-create:
+	k3d cluster create --port 8500:30058@server[0] --wait
+
+consul-start:
+	cd test && helmfile sync
+
+consul-init: consul-start
+	kubectl -n amp create secret generic consul-token --from-literal=token=$(shell kubectl -n consul get secret consul-bootstrap-acl-token -o json | jq -r '.data.token' | base64 -D);
+
+create-consul-state: consul-init
+	export CONSUL_HTTP_TOKEN=$(shell kubectl -n consul get secret consul-bootstrap-acl-token -o json | jq -r '.data.token' | base64 -D); \
+	cd test/consul-state && terraform12 init && terraform12 apply -auto-approve
+
+e2e-test:
+	go test github.com/patoarvizu/amphibian/test/e2e -v -count=1
+
 # Run tests
 test: generate fmt vet manifests
 	go test ./... -coverprofile cover.out
@@ -72,7 +88,6 @@ generate: controller-gen
 # Build the docker image
 docker-build:
 	docker build . -t ${IMG}
-	k3d image import ${IMG}
 
 # Push the docker image
 docker-push:

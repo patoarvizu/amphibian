@@ -21,6 +21,22 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o manager 
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 # FROM gcr.io/distroless/static:nonroot
 FROM alpine:3.12.1
+
+ARG GIT_COMMIT="unspecified"
+LABEL GIT_COMMIT=$GIT_COMMIT
+
+ARG GIT_TAG=""
+LABEL GIT_TAG=$GIT_TAG
+
+ARG COMMIT_TIMESTAMP="unspecified"
+LABEL COMMIT_TIMESTAMP=$COMMIT_TIMESTAMP
+
+ARG AUTHOR_EMAIL="unspecified"
+LABEL AUTHOR_EMAIL=$AUTHOR_EMAIL
+
+ARG SIGNATURE_KEY="undefined"
+LABEL SIGNATURE_KEY=$SIGNATURE_KEY
+
 WORKDIR /
 RUN wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip -O terraform.zip
 RUN unzip terraform.zip

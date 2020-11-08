@@ -223,7 +223,10 @@ func validateStateTarget(s *terraformv1.TerraformState) error {
 	configMap := &corev1.ConfigMap{}
 	err := wait.Poll(time.Second*2, time.Second*60, func() (done bool, err error) {
 		err = k8sClient.Get(context.TODO(), types.NamespacedName{Namespace: s.Spec.Target.NamespaceName, Name: s.Spec.Target.ConfigMapName}, configMap)
-		return err == nil, err
+		if err != nil {
+			return false, err
+		}
+		return true, nil
 	})
 	if err != nil {
 		return err

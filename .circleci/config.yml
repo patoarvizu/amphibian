@@ -1,0 +1,125 @@
+version: 2.1
+
+executors:
+  vm:
+    machine:
+      image: ubuntu-1604:202007-01
+    environment:
+      GOLANG_VERSION: 1.13.8
+      NOTARY_VERSION: 0.6.1
+      KUBECTL_VERSION: 1.12.0
+      K3D_VERSION: 3.0.0
+      HELMFILE_VERSION: 0.129.3
+      TERRAFORM_VERSION: 0.12.13
+      GOPATH: /home/circleci/go
+      GO111MODULE: "on"
+      DOCKER_CLI_EXPERIMENTAL: enabled
+    working_directory: /home/circleci/go/src/github.com/patoarvizu/amphibian
+
+jobs:
+  build:
+    executor: vm
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - amphibian-golang-cache-{{ checksum "go.sum" }}
+    - run:
+        name: Install golang
+        command: |
+          sudo rm -rf /usr/local/go
+          curl -Lo go.linux-amd64.tar.gz "https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz"
+          sudo tar -C /usr/local -xzf go.linux-amd64.tar.gz
+          mkdir -p ${HOME}/go/bin
+          echo 'export PATH="$GOPATH/bin:$PATH"' >> "${BASH_ENV}"
+    - run:
+        name: Build image
+        command: |
+          make docker-build
+    - run:
+        name: Install kubectl
+        command: |
+          curl -Lo kubectl "https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          mkdir -p "${HOME}/.kube"
+          touch "${HOME}/.kube/config"
+    - run:
+        name: Install k3d
+        command: |
+          wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=v${K3D_VERSION} bash
+    - run:
+        name: Install Helm
+        command: |
+          wget https://get.helm.sh/helm-v3.3.1-linux-amd64.tar.gz
+          tar -zxvf helm-v3.3.1-linux-amd64.tar.gz
+          chmod +x linux-amd64/helm
+          sudo mv linux-amd64/helm /usr/local/bin/
+    - run:
+        name: Install helmfile
+        command: |
+          curl -L https://github.com/roboll/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_linux_amd64 -o helmfile
+          chmod +x helmfile
+          sudo mv helmfile /usr/local/bin
+    - run:
+        name: Install terraform
+        command: |
+          curl -L https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip
+          unzip terraform.zip
+          chmod +x terraform
+          sudo mv terraform /usr/local/bin
+    - run:
+        name: Setup environment
+        command: |
+          export KUBECONFIG=~/.k3d/k3s-default-config
+          k3d cluster create --port 8500:30058@server[0] --wait
+          k3d image import patoarvizu/amphibian:latest
+          cd test/consul && helmfile sync
+          cd ../consul-service && helmfile sync
+          export CONSUL_HTTP_TOKEN=$(kubectl -n consul get secret consul-bootstrap-acl-token -o json | jq -r '.data.token' | base64 -d)
+          cd ../consul-state && terraform init && terraform apply -auto-approve
+          export AMP_CONSUL_TOKEN=${CONSUL_HTTP_TOKEN}
+          cd ../secrets && helmfile sync
+          cd ../amphibian && helmfile sync
+    - run:
+        name: Run tests
+        command: |
+          export KUBECONFIG=~/.k3d/k3s-default-config
+          go test github.com/patoarvizu/amphibian/test/e2e -v -count=1
+    - save_cache:
+        key: amphibian-golang-cache-{{ checksum "go.sum" }}
+        paths:
+          - /home/circleci/go/pkg/mod/cache
+    - run:
+        name: Install notary
+        command: |
+          curl -L https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 -o notary
+          chmod +x notary
+          sudo mv notary /usr/local/bin
+    - run:
+        name: Push image
+        command: |
+          docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_ACCESS_TOKEN
+          echo $ENCODED_NOTARY_ROLE_KEY | base64 -d > ${HOME}/amphibian-circleci.key
+          export NOTARY_DELEGATION_PASSPHRASE=$NOTARY_ROLE_PASSPHRASE
+          notary -s https://notary.docker.io -d ~/.docker/trust key import ${HOME}/amphibian-circleci.key --role amphibian-circleci
+          export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$NOTARY_DELEGATION_PASSPHRASE
+          VERSION=${CIRCLE_TAG:-latest}
+          OPERATOR_BUILD_ARGS="--build-arg GIT_COMMIT=$CIRCLE_SHA1 --build-arg GIT_TAG=$CIRCLE_TAG --build-arg COMMIT_TIMESTAMP=$(git log -1 --format=%at) --build-arg AUTHOR_EMAIL=$(git log -1 --format=%ae) --build-arg SIGNATURE_KEY=$(git log -1 --format=%GK)"
+          export DOCKER_CONTENT_TRUST=1
+          docker buildx create --name cci-builder --use
+          docker buildx build --progress=plain --platform=linux/amd64 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-amd64 -t patoarvizu/amphibian:$CIRCLE_SHA1-amd64 -t patoarvizu/amphibian:$VERSION-amd64
+          docker push patoarvizu/amphibian:latest-amd64
+          docker push patoarvizu/amphibian:$CIRCLE_SHA1-amd64
+          docker push patoarvizu/amphibian:$VERSION-amd64
+        no_output_timeout: 30m
+
+workflows:
+  version: 2
+  build-operator:
+    jobs:
+    - build:
+        context: authentication-tokens
+        filters:
+          tags:
+            only: /^v\d+\.\d+.\d+$/

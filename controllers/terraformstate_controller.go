@@ -160,6 +160,13 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		s, ok := v.(string)
 		if ok {
 			configMapData[k] = s
+		} else {
+			data, err := json.Marshal(v)
+			if err == nil {
+				configMapData[k] = fmt.Sprintf("%s", data)
+			} else {
+				r.Log.Info(fmt.Sprintf("Skipping field %s: %v", k, err))
+			}
 		}
 	}
 	configMap := &corev1.ConfigMap{}

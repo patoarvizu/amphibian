@@ -112,6 +112,7 @@ jobs:
           docker push patoarvizu/amphibian:$CIRCLE_SHA1-amd64
           docker push patoarvizu/amphibian:$VERSION-amd64
         no_output_timeout: 30m
+
 workflows:
   version: 2
   build-operator:

@@ -91,6 +91,12 @@ jobs:
         paths:
           - /home/circleci/go/pkg/mod/cache
     - run:
+        name: Install notary
+        command: |
+          curl -L https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 -o notary
+          chmod +x notary
+          sudo mv notary /usr/local/bin
+    - run:
         name: Push image
         command: |
           docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_ACCESS_TOKEN
@@ -106,12 +112,6 @@ jobs:
           docker push patoarvizu/amphibian:$CIRCLE_SHA1-amd64
           docker push patoarvizu/amphibian:$VERSION-amd64
         no_output_timeout: 30m
-    - run:
-        name: Install notary
-        command: |
-          curl -L https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 -o notary
-          chmod +x notary
-          sudo mv notary /usr/local/bin
 workflows:
   version: 2
   build-operator:

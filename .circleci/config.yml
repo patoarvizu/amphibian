@@ -108,7 +108,8 @@ jobs:
           OPERATOR_BUILD_ARGS="--build-arg GIT_COMMIT=$CIRCLE_SHA1 --build-arg GIT_TAG=$CIRCLE_TAG --build-arg COMMIT_TIMESTAMP=$(git log -1 --format=%at) --build-arg AUTHOR_EMAIL=$(git log -1 --format=%ae) --build-arg SIGNATURE_KEY=$(git log -1 --format=%GK)"
           export DOCKER_CONTENT_TRUST=1
           docker buildx create --name cci-builder --use
-          docker buildx build --progress=plain --platform=linux/amd64 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-amd64 -t patoarvizu/amphibian:$CIRCLE_SHA1-amd64 -t patoarvizu/amphibian:$VERSION-amd64
+          docker buildx build --progress=plain --platform=linux/amd64 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-amd64 -t patoarvizu/amphibian:$CIRCLE_SHA1-amd64 -t patoarvizu/amphibian:$VERSION-amd64 -t patoarvizu/amphibian:latest
+          docker push patoarvizu/amphibian:latest
           docker push patoarvizu/amphibian:latest-amd64
           docker push patoarvizu/amphibian:$CIRCLE_SHA1-amd64
           docker push patoarvizu/amphibian:$VERSION-amd64

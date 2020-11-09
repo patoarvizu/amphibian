@@ -46,7 +46,7 @@ type TerraformStateReconciler struct {
 
 type terraformOutputs struct {
 	Outputs struct {
-		Value map[string]string `json:"value"`
+		Value map[string]interface{} `json:"value"`
 	} `json:"outputs"`
 }
 
@@ -157,7 +157,17 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 
 	configMapData := make(map[string]string)
 	for k, v := range tfOutputs.Outputs.Value {
-		configMapData[k] = v
+		s, ok := v.(string)
+		if ok {
+			configMapData[k] = s
+		} else {
+			data, err := json.Marshal(v)
+			if err == nil {
+				configMapData[k] = fmt.Sprintf("%s", data)
+			} else {
+				r.Log.Info(fmt.Sprintf("Skipping field %s: %v", k, err))
+			}
+		}
 	}
 	configMap := &corev1.ConfigMap{}
 	err = r.Get(ctx, types.NamespacedName{Namespace: state.Spec.Target.NamespaceName, Name: state.Spec.Target.ConfigMapName}, configMap)

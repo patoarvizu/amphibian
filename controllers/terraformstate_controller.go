@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/hcl2/hcl"
@@ -189,7 +190,7 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		return ctrl.Result{}, err
 	}
 
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: time.Second * time.Duration(60)}, nil
 }
 
 func (r *TerraformStateReconciler) SetupWithManager(mgr ctrl.Manager) error {

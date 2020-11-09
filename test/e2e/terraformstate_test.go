@@ -18,6 +18,7 @@ package e2e
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"path/filepath"
 	"testing"
@@ -232,6 +233,14 @@ func validateStateTarget(s *terraformv1.TerraformState) error {
 		return err
 	}
 	if configMap.Data["hello"] != "world" {
+		return errors.New("ConfigMap data doesn't match remote state")
+	}
+	jsonMap := make(map[string]string)
+	err = json.Unmarshal([]byte(configMap.Data["map"]), &jsonMap)
+	if err != nil {
+		return err
+	}
+	if jsonMap["a"] != "b" || jsonMap["x"] != "y" {
 		return errors.New("ConfigMap data doesn't match remote state")
 	}
 	return nil

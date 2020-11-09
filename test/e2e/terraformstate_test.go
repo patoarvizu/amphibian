@@ -243,6 +243,14 @@ func validateStateTarget(s *terraformv1.TerraformState) error {
 	if jsonMap["a"] != "b" || jsonMap["x"] != "y" {
 		return errors.New("ConfigMap data doesn't match remote state")
 	}
+	jsonList := []string{}
+	err = json.Unmarshal([]byte(configMap.Data["list"]), &jsonList)
+	if err != nil {
+		return err
+	}
+	if jsonList[0] != "a" || jsonList[1] != "b" || jsonList[2] != "c" {
+		return errors.New("ConfigMap data doesn't match remote state")
+	}
 	return nil
 }
 

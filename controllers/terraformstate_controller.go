@@ -181,6 +181,7 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 			if err != nil {
 				return ctrl.Result{}, err
 			}
+			return ctrl.Result{RequeueAfter: time.Second * time.Duration(60)}, nil
 		}
 		return ctrl.Result{}, err
 	}

@@ -177,6 +177,10 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 			configMap.ObjectMeta.Namespace = state.Spec.Target.NamespaceName
 			configMap.ObjectMeta.Name = state.Spec.Target.ConfigMapName
 			configMap.Data = configMapData
+			err = ctrl.SetControllerReference(state, configMap, r.Scheme)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
 			err = r.Create(ctx, configMap)
 			if err != nil {
 				return ctrl.Result{}, err

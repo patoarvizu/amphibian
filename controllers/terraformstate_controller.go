@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -170,6 +171,11 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 			}
 		}
 	}
+	resyncPeriod := 60
+	resyncPeriodEnvVar, ok := os.LookupEnv("RESYNC_PERIOD")
+	if ok {
+		resyncPeriod, err = strconv.Atoi(resyncPeriodEnvVar)
+	}
 	configMap := &corev1.ConfigMap{}
 	err = r.Get(ctx, types.NamespacedName{Namespace: state.ObjectMeta.Namespace, Name: state.Spec.Target.ConfigMapName}, configMap)
 	if err != nil {
@@ -185,7 +191,7 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 			if err != nil {
 				return ctrl.Result{}, err
 			}
-			return ctrl.Result{RequeueAfter: time.Second * time.Duration(60)}, nil
+			return ctrl.Result{RequeueAfter: time.Second * time.Duration(resyncPeriod)}, nil
 		}
 		return ctrl.Result{}, err
 	}
@@ -195,7 +201,7 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		return ctrl.Result{}, err
 	}
 
-	return ctrl.Result{RequeueAfter: time.Second * time.Duration(60)}, nil
+	return ctrl.Result{RequeueAfter: time.Second * time.Duration(resyncPeriod)}, nil
 }
 
 func (r *TerraformStateReconciler) SetupWithManager(mgr ctrl.Manager) error {

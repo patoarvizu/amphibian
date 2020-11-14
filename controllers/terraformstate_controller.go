@@ -23,6 +23,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/hcl2/hcl"
@@ -169,17 +171,27 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 			}
 		}
 	}
+	resyncPeriod := 60
+	resyncPeriodEnvVar, ok := os.LookupEnv("RESYNC_PERIOD")
+	if ok {
+		resyncPeriod, err = strconv.Atoi(resyncPeriodEnvVar)
+	}
 	configMap := &corev1.ConfigMap{}
-	err = r.Get(ctx, types.NamespacedName{Namespace: state.Spec.Target.NamespaceName, Name: state.Spec.Target.ConfigMapName}, configMap)
+	err = r.Get(ctx, types.NamespacedName{Namespace: state.ObjectMeta.Namespace, Name: state.Spec.Target.ConfigMapName}, configMap)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			configMap.ObjectMeta.Namespace = state.Spec.Target.NamespaceName
+			configMap.ObjectMeta.Namespace = state.ObjectMeta.Namespace
 			configMap.ObjectMeta.Name = state.Spec.Target.ConfigMapName
 			configMap.Data = configMapData
+			err = ctrl.SetControllerReference(state, configMap, r.Scheme)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
 			err = r.Create(ctx, configMap)
 			if err != nil {
 				return ctrl.Result{}, err
 			}
+			return ctrl.Result{RequeueAfter: time.Second * time.Duration(resyncPeriod)}, nil
 		}
 		return ctrl.Result{}, err
 	}
@@ -189,7 +201,7 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		return ctrl.Result{}, err
 	}
 
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: time.Second * time.Duration(resyncPeriod)}, nil
 }
 
 func (r *TerraformStateReconciler) SetupWithManager(mgr ctrl.Manager) error {

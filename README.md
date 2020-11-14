@@ -95,10 +95,9 @@ Additionally, the following options are not available since they're irrelevant f
 
 ### Target
 
-The `target` field represents the location where the outputs from the upstream state will be projected.
+The `target` field represents the location where the outputs from the upstream state will be projected. Currently, only projecting onto a `ConfigMap` is supported.
 
 - `configMapName`: The name of the `ConfigMap` that will hold the `outputs` map.
-- `namespace`: The name where the `ConfigMap` above will be placed.
 
 #### Values
 

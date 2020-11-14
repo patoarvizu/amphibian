@@ -171,10 +171,10 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		}
 	}
 	configMap := &corev1.ConfigMap{}
-	err = r.Get(ctx, types.NamespacedName{Namespace: state.Spec.Target.NamespaceName, Name: state.Spec.Target.ConfigMapName}, configMap)
+	err = r.Get(ctx, types.NamespacedName{Namespace: state.ObjectMeta.Namespace, Name: state.Spec.Target.ConfigMapName}, configMap)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			configMap.ObjectMeta.Namespace = state.Spec.Target.NamespaceName
+			configMap.ObjectMeta.Namespace = state.ObjectMeta.Namespace
 			configMap.ObjectMeta.Name = state.Spec.Target.ConfigMapName
 			configMap.Data = configMapData
 			err = ctrl.SetControllerReference(state, configMap, r.Scheme)

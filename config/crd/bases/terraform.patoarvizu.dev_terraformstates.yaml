@@ -151,11 +151,8 @@ spec:
               properties:
                 configMapName:
                   type: string
-                namespace:
-                  type: string
               required:
               - configMapName
-              - namespace
               type: object
             type:
               type: string

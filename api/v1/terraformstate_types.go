@@ -33,7 +33,6 @@ type RemoteConfig struct {
 }
 
 type Target struct {
-	NamespaceName string `json:"namespace"`
 	ConfigMapName string `json:"configMapName"`
 }
 

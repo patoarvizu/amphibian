@@ -166,6 +166,7 @@ func (in *TerraformStateSpec) DeepCopyInto(out *TerraformStateSpec) {
 	*out = *in
 	out.RemoteConfig = in.RemoteConfig
 	in.S3Config.DeepCopyInto(&out.S3Config)
+	out.ConsulConfig = in.ConsulConfig
 	out.Target = in.Target
 }
 

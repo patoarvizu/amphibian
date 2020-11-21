@@ -2,6 +2,7 @@
 FROM golang:1.13 as builder
 ARG TARGETARCH
 ARG TARGETVARIANT
+ARG TARGETPLATFORM="linux/amd64"
 
 WORKDIR /workspace
 # Copy the Go Modules manifests

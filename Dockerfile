@@ -35,7 +35,7 @@ ARG SIGNATURE_KEY="undefined"
 LABEL SIGNATURE_KEY=$SIGNATURE_KEY
 
 WORKDIR /
-RUN wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip -O terraform.zip
+RUN wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_${$TARGETARCH}.zip -O terraform.zip
 RUN unzip terraform.zip
 RUN mv terraform /usr/local/bin/
 COPY --from=builder /workspace/manager .

@@ -20,7 +20,7 @@ COPY controllers/ controllers/
 RUN CGO_ENABLED=0 GOOS=linux GOARM=$(if [ "$TARGETVARIANT" = "v7" ]; then echo "7"; fi) GOARCH=$TARGETARCH GO111MODULE=on go build -a -o manager main.go
 
 FROM alpine:3.12.1
-ARG TARGETARCH
+ARG TARGETARCH="amd64"
 
 ARG GIT_COMMIT="unspecified"
 LABEL GIT_COMMIT=$GIT_COMMIT

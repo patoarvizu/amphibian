@@ -171,6 +171,6 @@ workflows:
         filters:
           branches:
             ignore: /^.*$/
-            only: /^main$/
+            # only: /^main$/
           tags:
             only: /^v\d+\.\d+.\d+$/

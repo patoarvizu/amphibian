@@ -55,6 +55,7 @@ type terraformOutputs struct {
 // +kubebuilder:rbac:groups=terraform.patoarvizu.dev,resources=terraformstates,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=terraform.patoarvizu.dev,resources=terraformstates/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=core,resources=configmaps,verbs=watch;list;create;get;update;patch
+// +kubebuilder:rbac:groups=core,resources=secrets,verbs=watch;list;create;get;update;patch
 
 func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
@@ -179,14 +180,11 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	switch state.Spec.Target.Type {
 	case "configmap":
 		err = r.createConfigMap(state, targetData)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
 	case "secret":
-		err = createSecret()
-		if err != nil {
-			return ctrl.Result{}, err
-		}
+		err = r.createSecret(state, convertToMapStringByte(targetData))
+	}
+	if err != nil {
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{RequeueAfter: time.Second * time.Duration(resyncPeriod)}, nil
@@ -227,8 +225,41 @@ func (r *TerraformStateReconciler) createConfigMap(state *terraformv1.TerraformS
 	return nil
 }
 
-func createSecret() error {
+func (r *TerraformStateReconciler) createSecret(state *terraformv1.TerraformState, targetData map[string][]byte) error {
+	ctx := context.Background()
+	secret := &corev1.Secret{}
+	err := r.Get(ctx, types.NamespacedName{Namespace: state.ObjectMeta.Namespace, Name: state.Spec.Target.Name}, secret)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			secret.ObjectMeta.Namespace = state.ObjectMeta.Namespace
+			secret.ObjectMeta.Name = state.Spec.Target.Name
+			secret.Data = targetData
+			err = ctrl.SetControllerReference(state, secret, r.Scheme)
+			if err != nil {
+				return err
+			}
+			err = r.Create(ctx, secret)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		return err
+	}
+	secret.Data = targetData
+	err = r.Update(ctx, secret)
+	if err != nil {
+		return err
+	}
 	return nil
+}
+
+func convertToMapStringByte(data map[string]string) map[string][]byte {
+	targetData := make(map[string][]byte)
+	for k, v := range data {
+		targetData[k] = []byte(v)
+	}
+	return targetData
 }
 
 func createRemoteBackendBody(config terraformv1.RemoteConfig) cty.Value {

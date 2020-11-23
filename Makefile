@@ -87,7 +87,7 @@ generate: controller-gen
 
 # Build the docker image
 docker-build:
-	docker build . -t ${IMG} --platform=linux/amd64
+	docker buildx build . -t ${IMG} --platform=linux/amd64 --load
 
 # Push the docker image
 docker-push:

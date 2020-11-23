@@ -62,7 +62,8 @@ func createRemoteStateConfig() (*terraformv1.TerraformState, error) {
 				},
 			},
 			Target: terraformv1.Target{
-				ConfigMapName: "test-remote",
+				Type: "configmap",
+				Name: "test-remote",
 			},
 		},
 	}
@@ -90,7 +91,8 @@ func createS3StateConfig() (*terraformv1.TerraformState, error) {
 				Key:    "patoarvizu-infra/amphibian/s3-state/terraform.tfstate",
 			},
 			Target: terraformv1.Target{
-				ConfigMapName: "test-s3",
+				Type: "configmap",
+				Name: "test-s3",
 			},
 		},
 	}
@@ -119,7 +121,8 @@ func createConsulStateConfig() (*terraformv1.TerraformState, error) {
 				Scheme:  "http",
 			},
 			Target: terraformv1.Target{
-				ConfigMapName: "test-consul",
+				Type: "configmap",
+				Name: "test-consul",
 			},
 		},
 	}
@@ -220,7 +223,7 @@ var _ = AfterSuite(func() {
 func validateStateTarget(s *terraformv1.TerraformState) error {
 	configMap := &corev1.ConfigMap{}
 	err := wait.Poll(time.Second*2, time.Second*60, func() (done bool, err error) {
-		err = k8sClient.Get(context.TODO(), types.NamespacedName{Namespace: "default", Name: s.Spec.Target.ConfigMapName}, configMap)
+		err = k8sClient.Get(context.TODO(), types.NamespacedName{Namespace: "default", Name: s.Spec.Target.Name}, configMap)
 		if err != nil {
 			return false, err
 		}

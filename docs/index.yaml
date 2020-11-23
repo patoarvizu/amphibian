@@ -2,11 +2,11 @@ apiVersion: v1
 entries:
   amphibian:
   - apiVersion: v2
-    created: "2020-11-21T20:54:45.582011-05:00"
+    created: "2020-11-23T18:53:43.515892-05:00"
     description: Amphibian
-    digest: 71f3fc2033ab38fc9bd31fd608f4ad8ce032d47af2c709acadc2b41bbc5a7e02
+    digest: f60efee51c6fb5a2485ecc20c23db1529d6ed40d47aecf149e2659d6e52414e4
     name: amphibian
     urls:
     - https://patoarvizu.github.io/amphibian/amphibian-0.0.0.tgz
     version: 0.0.0
-generated: "2020-11-21T20:54:45.581461-05:00"
+generated: "2020-11-23T18:53:43.515322-05:00"

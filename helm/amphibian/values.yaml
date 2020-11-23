@@ -12,3 +12,17 @@ prometheusMonitoring:
 authEnvVars:
 # resources -- (object) The resources requests/limits to be set on the deployment pod spec template.
 resources:
+rbac:
+  # rbac.clusterRoleSecretsAccessRules -- List of `PolicyRule`s for accessing Kubernetes secrets, to be appended to the `amphibian-manager-role` cluster role.
+  clusterRoleSecretsAccessRules:
+  - apiGroups:
+    - ""
+    resources:
+    - secrets
+    verbs:
+    - create
+    - get
+    - list
+    - patch
+    - update
+    - watch

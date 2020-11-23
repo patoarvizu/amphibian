@@ -149,10 +149,13 @@ spec:
               type: object
             target:
               properties:
-                configMapName:
+                name:
+                  type: string
+                type:
                   type: string
               required:
-              - configMapName
+              - name
+              - type
               type: object
             type:
               type: string

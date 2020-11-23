@@ -33,7 +33,8 @@ type RemoteConfig struct {
 }
 
 type Target struct {
-	ConfigMapName string `json:"configMapName"`
+	Type string `json:"type"`
+	Name string `json:"name"`
 }
 
 type S3Config struct {

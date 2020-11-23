@@ -157,15 +157,15 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		return ctrl.Result{}, err
 	}
 
-	configMapData := make(map[string]string)
+	targetData := make(map[string]string)
 	for k, v := range tfOutputs.Outputs.Value {
 		s, ok := v.(string)
 		if ok {
-			configMapData[k] = s
+			targetData[k] = s
 		} else {
 			data, err := json.Marshal(v)
 			if err == nil {
-				configMapData[k] = fmt.Sprintf("%s", data)
+				targetData[k] = fmt.Sprintf("%s", data)
 			} else {
 				r.Log.Info(fmt.Sprintf("Skipping field %s: %v", k, err))
 			}
@@ -176,29 +176,17 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	if ok {
 		resyncPeriod, err = strconv.Atoi(resyncPeriodEnvVar)
 	}
-	configMap := &corev1.ConfigMap{}
-	err = r.Get(ctx, types.NamespacedName{Namespace: state.ObjectMeta.Namespace, Name: state.Spec.Target.ConfigMapName}, configMap)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			configMap.ObjectMeta.Namespace = state.ObjectMeta.Namespace
-			configMap.ObjectMeta.Name = state.Spec.Target.ConfigMapName
-			configMap.Data = configMapData
-			err = ctrl.SetControllerReference(state, configMap, r.Scheme)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			err = r.Create(ctx, configMap)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			return ctrl.Result{RequeueAfter: time.Second * time.Duration(resyncPeriod)}, nil
+	switch state.Spec.Target.Type {
+	case "configmap":
+		err = r.createConfigMap(state, targetData)
+		if err != nil {
+			return ctrl.Result{}, err
 		}
-		return ctrl.Result{}, err
-	}
-	configMap.Data = configMapData
-	err = r.Update(ctx, configMap)
-	if err != nil {
-		return ctrl.Result{}, err
+	case "secret":
+		err = createSecret()
+		if err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 
 	return ctrl.Result{RequeueAfter: time.Second * time.Duration(resyncPeriod)}, nil
@@ -208,6 +196,39 @@ func (r *TerraformStateReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&terraformv1.TerraformState{}).
 		Complete(r)
+}
+
+func (r *TerraformStateReconciler) createConfigMap(state *terraformv1.TerraformState, targetData map[string]string) error {
+	ctx := context.Background()
+	configMap := &corev1.ConfigMap{}
+	err := r.Get(ctx, types.NamespacedName{Namespace: state.ObjectMeta.Namespace, Name: state.Spec.Target.Name}, configMap)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			configMap.ObjectMeta.Namespace = state.ObjectMeta.Namespace
+			configMap.ObjectMeta.Name = state.Spec.Target.Name
+			configMap.Data = targetData
+			err = ctrl.SetControllerReference(state, configMap, r.Scheme)
+			if err != nil {
+				return err
+			}
+			err = r.Create(ctx, configMap)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		return err
+	}
+	configMap.Data = targetData
+	err = r.Update(ctx, configMap)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func createSecret() error {
+	return nil
 }
 
 func createRemoteBackendBody(config terraformv1.RemoteConfig) cty.Value {

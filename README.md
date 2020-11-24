@@ -21,13 +21,13 @@ The adoption of Terraform in many organizations predates the adoption of Kuberne
 
 Just like [amphibians](https://en.wikipedia.org/wiki/Amphibian) can inhabit both land and water, this project aims to close the interface gap between Terraform outputs and Kubernetes configuration discovery. The existing [terraform-helm](https://github.com/hashicorp/terraform-helm) and [aws-controllers-k8s](https://github.com/aws/aws-controllers-k8s) projects don't yet have the full functionality and flexibility that Amphibian provides.
 
-A [Custom resource](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) of kind `TerraformState` deployed on Kubernetes clusters will create a new `ConfigMap` and populate it with the [outputs](https://www.terraform.io/docs/configuration/outputs.html) of the corresponding remote Terraform state.
+A [Custom resource](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) of kind `TerraformState` deployed on Kubernetes clusters will create a new `ConfigMap` or `Secret` and populate it with the [outputs](https://www.terraform.io/docs/configuration/outputs.html) of the corresponding remote Terraform state.
 
 ## Design
 
 Even though Terraform has a `struct` for capturing a module's [output values](https://github.com/hashicorp/terraform/blob/v0.13.5/states/output_value.go) programmatically, that API can't be considered public and guaranteed.
 
-Since the only guaranteed interface is the command line, the way this controller gets the outputs from the remote state is by creating a `data.tf` and an `outputs.tf` file, running `terraform apply`, followed by `terraform output -json`, and then unmarshaling that output back into a Go `struct`. The controller then uses those outputs to create a new configmap in the location defined by `target`, that has the exact contents returned by Terraform.
+Since the only guaranteed interface is the command line, the way this controller gets the outputs from the remote state is by creating a `data.tf` and an `outputs.tf` file, running `terraform apply`, followed by `terraform output -json`, and then unmarshaling that output back into a Go `struct`. The controller then uses those outputs to create a new `ConfigMap` or `Secret` in the location defined by `target`, that has the exact contents returned by Terraform.
 
 **Note:** Keep in mind that Terraform only returns the [root-level outputs](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/data-sources/remote_state#root-outputs-only). If you need to consume the outputs of a submodule, you'll have to expose it all the way to the root level so they can be discovered in Kubernetes.
 
@@ -95,9 +95,10 @@ Additionally, the following options are not available since they're irrelevant f
 
 ### Target
 
-The `target` field represents the location where the outputs from the upstream state will be projected. Currently, only projecting onto a `ConfigMap` is supported.
+The `target` field represents the location and type of object where the outputs from the upstream state will be projected.
 
-- `configMapName`: The name of the `ConfigMap` that will hold the `outputs` map.
+- `type`: The type of object where the outputs will be projected. It supports either `configmap` or `secret` (all lowercase in both cases).
+- `name`: The name of either the `ConfigMap` or the `Secret` that will hold the `outputs` map.
 
 #### Values
 

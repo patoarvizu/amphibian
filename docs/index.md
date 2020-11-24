@@ -12,5 +12,6 @@ Amphibian
 | imagePullPolicy | string | `"IfNotPresent"` | The imagePullPolicy to be used on the operator. |
 | imageVersion | string | `"latest"` | The image version used for the operator. |
 | prometheusMonitoring.enable | bool | `false` | Create the `Service` and `ServiceMonitor` objects to enable Prometheus monitoring on the operator. |
+| rbac.clusterRoleSecretsAccessRules | list | `[{"apiGroups":[""],"resources":["secrets"],"verbs":["create","get","list","patch","update","watch"]}]` | List of `PolicyRule`s for accessing Kubernetes secrets, to be appended to the `amphibian-manager-role` cluster role. |
 | resources | object | `nil` | The resources requests/limits to be set on the deployment pod spec template. |
 | watchNamespace | string | `""` | The value to be set on the `WATCH_NAMESPACE` environment variable. |

@@ -149,10 +149,16 @@ spec:
               type: object
             target:
               properties:
-                configMapName:
+                name:
+                  type: string
+                type:
+                  enum:
+                  - configmap
+                  - secret
                   type: string
               required:
-              - configMapName
+              - name
+              - type
               type: object
             type:
               type: string

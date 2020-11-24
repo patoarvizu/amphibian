@@ -33,7 +33,9 @@ type RemoteConfig struct {
 }
 
 type Target struct {
-	ConfigMapName string `json:"configMapName"`
+	// +kubebuilder:validation:Enum={"configmap","secret"}
+	Type string `json:"type"`
+	Name string `json:"name"`
 }
 
 type S3Config struct {

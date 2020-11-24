@@ -42,7 +42,7 @@ import (
 	// +kubebuilder:scaffold:imports
 )
 
-func createRemoteStateConfig() (*terraformv1.TerraformState, error) {
+func createRemoteStateConfig(targetType string) (*terraformv1.TerraformState, error) {
 	s := &terraformv1.TerraformState{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "TerraformState",
@@ -62,7 +62,8 @@ func createRemoteStateConfig() (*terraformv1.TerraformState, error) {
 				},
 			},
 			Target: terraformv1.Target{
-				ConfigMapName: "test-remote",
+				Type: targetType,
+				Name: "test-remote",
 			},
 		},
 	}
@@ -73,7 +74,7 @@ func createRemoteStateConfig() (*terraformv1.TerraformState, error) {
 	return s, nil
 }
 
-func createS3StateConfig() (*terraformv1.TerraformState, error) {
+func createS3StateConfig(targetType string) (*terraformv1.TerraformState, error) {
 	s := &terraformv1.TerraformState{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "TerraformState",
@@ -90,7 +91,8 @@ func createS3StateConfig() (*terraformv1.TerraformState, error) {
 				Key:    "patoarvizu-infra/amphibian/s3-state/terraform.tfstate",
 			},
 			Target: terraformv1.Target{
-				ConfigMapName: "test-s3",
+				Type: targetType,
+				Name: "test-s3",
 			},
 		},
 	}
@@ -101,7 +103,7 @@ func createS3StateConfig() (*terraformv1.TerraformState, error) {
 	return s, nil
 }
 
-func createConsulStateConfig() (*terraformv1.TerraformState, error) {
+func createConsulStateConfig(targetType string) (*terraformv1.TerraformState, error) {
 	s := &terraformv1.TerraformState{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "TerraformState",
@@ -119,7 +121,8 @@ func createConsulStateConfig() (*terraformv1.TerraformState, error) {
 				Scheme:  "http",
 			},
 			Target: terraformv1.Target{
-				ConfigMapName: "test-consul",
+				Type: targetType,
+				Name: "test-consul",
 			},
 		},
 	}
@@ -176,34 +179,67 @@ var _ = Describe("With the controller running", func() {
 		state *terraformv1.TerraformState
 		err   error
 	)
-	When("Deploying a TerraformState object with 'remote' config", func() {
+	When("Deploying a TerraformState object with 'remote' config and target type 'configmap'", func() {
 		It("Should create the target ConfigMap", func() {
-			state, err = createRemoteStateConfig()
+			state, err = createRemoteStateConfig("configmap")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(state).ToNot(BeNil())
-			err = validateStateTarget(state)
+			err = validateStateTargetConfigMap(state)
 			Expect(err).ToNot(HaveOccurred())
 			err = k8sClient.Delete(context.TODO(), state)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
-	When("Deploying a TerraformState object with 's3' config", func() {
-		It("Should create the target ConfigMap", func() {
-			state, err = createS3StateConfig()
+	When("Deploying a TerraformState object with 'remote' config and target type 'secret'", func() {
+		It("Should create the target Secret", func() {
+			state, err = createRemoteStateConfig("secret")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(state).ToNot(BeNil())
-			err = validateStateTarget(state)
+			err = validateStateTargetSecret(state)
 			Expect(err).ToNot(HaveOccurred())
 			err = k8sClient.Delete(context.TODO(), state)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
-	When("Deploying a TerraformState object with 'consul' config", func() {
+	When("Deploying a TerraformState object with 's3' config and target type 'configmap'", func() {
 		It("Should create the target ConfigMap", func() {
-			state, err = createConsulStateConfig()
+			state, err = createS3StateConfig("configmap")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(state).ToNot(BeNil())
-			err = validateStateTarget(state)
+			err = validateStateTargetConfigMap(state)
+			Expect(err).ToNot(HaveOccurred())
+			err = k8sClient.Delete(context.TODO(), state)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	When("Deploying a TerraformState object with 's3' config and target type 'secret'", func() {
+		It("Should create the target Secret", func() {
+			state, err = createS3StateConfig("secret")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(state).ToNot(BeNil())
+			err = validateStateTargetSecret(state)
+			Expect(err).ToNot(HaveOccurred())
+			err = k8sClient.Delete(context.TODO(), state)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	When("Deploying a TerraformState object with 'consul' config and target type 'configmap'", func() {
+		It("Should create the target ConfigMap", func() {
+			state, err = createConsulStateConfig("configmap")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(state).ToNot(BeNil())
+			err = validateStateTargetConfigMap(state)
+			Expect(err).ToNot(HaveOccurred())
+			err = k8sClient.Delete(context.TODO(), state)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	When("Deploying a TerraformState object with 'consul' config and target type 'secret'", func() {
+		It("Should create the target Secret", func() {
+			state, err = createConsulStateConfig("secret")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(state).ToNot(BeNil())
+			err = validateStateTargetSecret(state)
 			Expect(err).ToNot(HaveOccurred())
 			err = k8sClient.Delete(context.TODO(), state)
 			Expect(err).ToNot(HaveOccurred())
@@ -217,10 +253,10 @@ var _ = AfterSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 })
 
-func validateStateTarget(s *terraformv1.TerraformState) error {
+func validateStateTargetConfigMap(s *terraformv1.TerraformState) error {
 	configMap := &corev1.ConfigMap{}
 	err := wait.Poll(time.Second*2, time.Second*60, func() (done bool, err error) {
-		err = k8sClient.Get(context.TODO(), types.NamespacedName{Namespace: "default", Name: s.Spec.Target.ConfigMapName}, configMap)
+		err = k8sClient.Get(context.TODO(), types.NamespacedName{Namespace: "default", Name: s.Spec.Target.Name}, configMap)
 		if err != nil {
 			return false, err
 		}
@@ -247,6 +283,40 @@ func validateStateTarget(s *terraformv1.TerraformState) error {
 	}
 	if jsonList[0] != "a" || jsonList[1] != "b" || jsonList[2] != "c" {
 		return errors.New("ConfigMap data doesn't match remote state")
+	}
+	return nil
+}
+
+func validateStateTargetSecret(s *terraformv1.TerraformState) error {
+	secret := &corev1.Secret{}
+	err := wait.Poll(time.Second*2, time.Second*60, func() (done bool, err error) {
+		err = k8sClient.Get(context.TODO(), types.NamespacedName{Namespace: "default", Name: s.Spec.Target.Name}, secret)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	})
+	if err != nil {
+		return err
+	}
+	if string(secret.Data["hello"]) != "world" {
+		return errors.New("Secret data doesn't match remote state")
+	}
+	jsonMap := make(map[string]string)
+	err = json.Unmarshal([]byte(secret.Data["map"]), &jsonMap)
+	if err != nil {
+		return err
+	}
+	if jsonMap["a"] != "b" || jsonMap["x"] != "y" {
+		return errors.New("Secret data doesn't match remote state")
+	}
+	jsonList := []string{}
+	err = json.Unmarshal([]byte(secret.Data["list"]), &jsonList)
+	if err != nil {
+		return err
+	}
+	if jsonList[0] != "a" || jsonList[1] != "b" || jsonList[2] != "c" {
+		return errors.New("Secret data doesn't match remote state")
 	}
 	return nil
 }

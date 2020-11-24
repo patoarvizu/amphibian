@@ -2,7 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   creationTimestamp: null
-  name: manager-role
+  name: amphibian-manager-role
 rules:
 - apiGroups:
   - ""
@@ -35,15 +35,19 @@ rules:
   - get
   - patch
   - update
+{{- range .Values.rbac.clusterRoleSecretsAccessRules }}
+- {{ range $k, $v := . }}{{ $k }}: {{ toYaml $v | nindent 2 }}
+  {{ end }}
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: manager-rolebinding
+  name: amphibian-manager-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: manager-role
+  name: amphibian-manager-role
 subjects:
 - kind: ServiceAccount
   name: amphibian

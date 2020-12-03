@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  snyk: snyk/snyk@0.0.8
+
 executors:
   vm:
     machine:
@@ -37,6 +40,11 @@ jobs:
         command: |
           docker buildx create --name cci-builder --use
           docker buildx build --progress=plain --platform=linux/amd64 --load . -t patoarvizu/amphibian:latest
+    - snyk/scan:
+        docker-image-name: patoarvizu/amphibian:latest
+        fail-on-issues: true
+        project: patoarvizu/amphibian
+        severity-threshold: low
     - run:
         name: Install kubectl
         command: |

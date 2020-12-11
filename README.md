@@ -1,5 +1,8 @@
 # Amphibian
 
+![Black Lives Matter](https://img.shields.io/badge/BLM-Black%20Lives%20Matter-black)
+![CircleCI](https://img.shields.io/circleci/build/github/patoarvizu/amphibian.svg?label=CircleCI) ![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/patoarvizu/amphibian.svg) ![Docker Pulls](https://img.shields.io/docker/pulls/patoarvizu/amphibian.svg) ![Keybase BTC](https://img.shields.io/keybase/btc/patoarvizu.svg) ![Keybase PGP](https://img.shields.io/keybase/pgp/patoarvizu.svg) ![GitHub](https://img.shields.io/github/license/patoarvizu/amphibian.svg)
+
 <!-- TOC -->
 
 - [Amphibian](#amphibian)

@@ -18,7 +18,7 @@ COPY controllers/ controllers/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARM=$(if [ "$TARGETVARIANT" = "v7" ]; then echo "7"; fi) GOARCH=$TARGETARCH GO111MODULE=on go build -a -o manager main.go
-RUN wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_${TARGETARCH}.zip -O terraform.zip
+COPY terraform_0.13.5_linux_${TARGETARCH}.zip terraform.zip
 RUN unzip terraform.zip
 
 FROM gcr.io/distroless/static:nonroot-amd64

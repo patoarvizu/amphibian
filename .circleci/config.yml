@@ -146,6 +146,8 @@ jobs:
           OPERATOR_BUILD_ARGS="--build-arg GIT_COMMIT=$CIRCLE_SHA1 --build-arg GIT_TAG=$CIRCLE_TAG --build-arg COMMIT_TIMESTAMP=$(git log -1 --format=%at) --build-arg AUTHOR_EMAIL=$(git log -1 --format=%ae) --build-arg SIGNATURE_KEY=$(git log -1 --format=%GK)"
           export DOCKER_CONTENT_TRUST=1
           VERSION=${CIRCLE_TAG:-latest}
+          wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_arm64.zip
+          wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip
           docker buildx build --progress=plain --platform=linux/arm64 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-arm64 -t patoarvizu/amphibian:$CIRCLE_SHA1-arm64 -t patoarvizu/amphibian:$VERSION-arm64
           docker buildx build --progress=plain --platform=linux/arm/v7 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-arm7 -t patoarvizu/amphibian:$CIRCLE_SHA1-arm7 -t patoarvizu/amphibian:$VERSION-arm7
           docker push patoarvizu/amphibian:latest-arm64

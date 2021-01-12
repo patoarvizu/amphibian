@@ -38,6 +38,9 @@ spec:
         volumeMounts:
         - mountPath: /terraform
           name: terraform
+        ports:
+        - name: http-metrics
+          containerPort: 8080
       volumes:
       - emptyDir:
           medium: Memory

@@ -173,7 +173,7 @@ jobs:
     - run:
         name: Install notary
         command: |
-          curl -L https://github.com/theupdateframework/notary/releases/download/v0.6.1/notary-Linux-amd64 -o notary
+          curl -L https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 -o notary
           chmod +x notary
           sudo mv notary /usr/local/bin
     - run:
@@ -226,7 +226,7 @@ jobs:
     - run:
         name: Install notary
         command: |
-          curl -L https://github.com/theupdateframework/notary/releases/download/v0.6.1/notary-Linux-amd64 -o notary
+          curl -L https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 -o notary
           chmod +x notary
           sudo mv notary /usr/local/bin
     - run:
@@ -263,7 +263,7 @@ jobs:
     - run:
         name: Install notary
         command: |
-          curl -L https://github.com/theupdateframework/notary/releases/download/v0.6.1/notary-Linux-amd64 -o notary
+          curl -L https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 -o notary
           chmod +x notary
           sudo mv notary /usr/local/bin
     - run:

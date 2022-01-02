@@ -6,7 +6,24 @@ orbs:
 executors:
   vm:
     machine:
-      image: ubuntu-1604:202007-01
+      image: ubuntu-2004:202111-02
+    resource_class: large
+    environment:
+      GOLANG_VERSION: 1.16.12
+      NOTARY_VERSION: 0.6.1
+      KUBECTL_VERSION: 1.21.5
+      K3D_VERSION: 4.4.8
+      HELMFILE_VERSION: 0.129.3
+      HELM_VERSION: 3.3.1
+      TERRAFORM_VERSION: 1.1.2
+      GOPATH: /home/circleci/go
+      GO111MODULE: "on"
+      DOCKER_CLI_EXPERIMENTAL: enabled
+    working_directory: /home/circleci/go/src/github.com/patoarvizu/amphibian
+  vm-arm:
+    machine:
+      image: ubuntu-2004:202111-02
+    resource_class: large
     environment:
       GOLANG_VERSION: 1.16.12
       NOTARY_VERSION: 0.6.1
@@ -21,7 +38,7 @@ executors:
     working_directory: /home/circleci/go/src/github.com/patoarvizu/amphibian
 
 jobs:
-  build:
+  test:
     executor: vm
     steps:
     - checkout
@@ -168,18 +185,18 @@ workflows:
   version: 2
   build-operator:
     jobs:
-    - build:
+    - test:
         context: authentication-tokens
         filters:
           tags:
             only: /^v\d+\.\d+.\d+$/
-    - push-multi-arch:
-        requires:
-        - build
-        context: authentication-tokens
-        filters:
-          branches:
-            ignore: /^.*$/
-            only: /^main$/
-          tags:
-            only: /^v\d+\.\d+.\d+$/
+    # - push-multi-arch:
+    #     requires:
+    #     - test
+    #     context: authentication-tokens
+    #     filters:
+    #       branches:
+    #         ignore: /^.*$/
+    #         only: /^main$/
+    #       tags:
+    #         only: /^v\d+\.\d+.\d+$/

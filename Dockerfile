@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM golang:1.13.15-alpine3.12 as builder
+FROM golang:1.16.12-alpine3.15 as builder
 ARG TARGETARCH
 ARG TARGETVARIANT
 
@@ -18,8 +18,6 @@ COPY controllers/ controllers/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARM=$(if [ "$TARGETVARIANT" = "v7" ]; then echo "7"; fi) GOARCH=$TARGETARCH GO111MODULE=on go build -a -o manager main.go
-COPY terraform_0.13.5_linux_${TARGETARCH}.zip terraform.zip
-RUN unzip terraform.zip
 
 FROM gcr.io/distroless/static:nonroot-amd64
 
@@ -40,7 +38,6 @@ LABEL SIGNATURE_KEY=$SIGNATURE_KEY
 
 WORKDIR /
 COPY --from=builder /workspace/manager .
-COPY --from=builder /workspace/terraform /usr/local/bin/
 USER nonroot:nonroot
 
 ENTRYPOINT ["/manager"]

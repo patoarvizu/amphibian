@@ -8,12 +8,13 @@ executors:
     machine:
       image: ubuntu-1604:202007-01
     environment:
-      GOLANG_VERSION: 1.13.8
+      GOLANG_VERSION: 1.16.12
       NOTARY_VERSION: 0.6.1
-      KUBECTL_VERSION: 1.12.0
-      K3D_VERSION: 3.0.0
+      KUBECTL_VERSION: 1.21.5
+      K3D_VERSION: 4.4.8
       HELMFILE_VERSION: 0.129.3
-      TERRAFORM_VERSION: 0.12.13
+      HELM_VERSION: 3.3.1
+      TERRAFORM_VERSION: 1.1.2
       GOPATH: /home/circleci/go
       GO111MODULE: "on"
       DOCKER_CLI_EXPERIMENTAL: enabled
@@ -39,7 +40,6 @@ jobs:
         name: Build image
         command: |
           docker buildx create --name cci-builder --use
-          wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip
           docker buildx build --progress=plain --platform=linux/amd64 --load . -t patoarvizu/amphibian:latest
     - snyk/scan:
         docker-image-name: patoarvizu/amphibian:latest
@@ -61,8 +61,8 @@ jobs:
     - run:
         name: Install Helm
         command: |
-          wget https://get.helm.sh/helm-v3.3.1-linux-amd64.tar.gz
-          tar -zxvf helm-v3.3.1-linux-amd64.tar.gz
+          wget https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz
+          tar -zxvf helm-v${HELM_VERSION}-linux-amd64.tar.gz
           chmod +x linux-amd64/helm
           sudo mv linux-amd64/helm /usr/local/bin/
     - run:
@@ -82,7 +82,7 @@ jobs:
         name: Setup environment
         command: |
           export KUBECONFIG=~/.k3d/k3s-default-config
-          k3d cluster create --port 8500:30058@server[0] --wait
+          k3d cluster create --image rancher/k3s:v1.21.8-k3s1 --port 8500:30058@server[0] # --k3s-server-arg "--kube-apiserver-arg=feature-gates=ServerSideApply=false"
           k3d image import patoarvizu/amphibian:latest
           cd test/consul && helmfile sync
           cd ../consul-service && helmfile sync
@@ -117,7 +117,6 @@ jobs:
           VERSION=${CIRCLE_TAG:-latest}
           OPERATOR_BUILD_ARGS="--build-arg GIT_COMMIT=$CIRCLE_SHA1 --build-arg GIT_TAG=$CIRCLE_TAG --build-arg COMMIT_TIMESTAMP=$(git log -1 --format=%at) --build-arg AUTHOR_EMAIL=$(git log -1 --format=%ae) --build-arg SIGNATURE_KEY=$(git log -1 --format=%GK)"
           export DOCKER_CONTENT_TRUST=1
-          wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip
           docker buildx build --progress=plain --platform=linux/amd64 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-amd64 -t patoarvizu/amphibian:$CIRCLE_SHA1-amd64 -t patoarvizu/amphibian:$VERSION-amd64
           docker push patoarvizu/amphibian:latest-amd64
           docker push patoarvizu/amphibian:$CIRCLE_SHA1-amd64
@@ -130,7 +129,7 @@ jobs:
     - run:
         name: Install notary
         command: |
-          curl -L https://github.com/theupdateframework/notary/releases/download/v0.6.1/notary-Linux-amd64 -o notary
+          curl -L https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 -o notary
           chmod +x notary
           sudo mv notary /usr/local/bin
     - run:
@@ -148,9 +147,6 @@ jobs:
           OPERATOR_BUILD_ARGS="--build-arg GIT_COMMIT=$CIRCLE_SHA1 --build-arg GIT_TAG=$CIRCLE_TAG --build-arg COMMIT_TIMESTAMP=$(git log -1 --format=%at) --build-arg AUTHOR_EMAIL=$(git log -1 --format=%ae) --build-arg SIGNATURE_KEY=$(git log -1 --format=%GK)"
           export DOCKER_CONTENT_TRUST=1
           VERSION=${CIRCLE_TAG:-latest}
-          wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_arm.zip
-          wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_arm64.zip
-          wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip
           docker buildx build --progress=plain --platform=linux/arm64 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-arm64 -t patoarvizu/amphibian:$CIRCLE_SHA1-arm64 -t patoarvizu/amphibian:$VERSION-arm64
           docker buildx build --progress=plain --platform=linux/arm/v7 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-arm7 -t patoarvizu/amphibian:$CIRCLE_SHA1-arm7 -t patoarvizu/amphibian:$VERSION-arm7
           docker push patoarvizu/amphibian:latest-arm64

@@ -1,5 +1,15 @@
 # imageVersion -- The image version used for the operator.
 imageVersion: latest
+# terraformBinary -- Information about the `terraform` binary to inject into the main container. These values will be used to download the binary from `https://releases.hashicorp.com/terraform/<terraformVersion.version>/terraform_<terraformVersion.version>_<terraformVersion.operatingSystem>_<terraformVersion.arch>.zip`.
+terraformBinary:
+  # terraformBinary.initContainerImage -- The image to use for the init container that installs the target `terraform` binary.
+  initContainerImage: alpine:3.15.0
+  # terraformBinary.version -- The version of the `terraform` binary. Note that it's not possible to use `latest`, or use "partial" versions (e.g. `1`, or `1.1`) so you have to specify the full version.
+  version: 1.1.2
+  # terraformBinary.operatingSystem -- The operating system for which to download the `terraform` binary.
+  operatingSystem: linux
+  # terraformBinary.arch -- The architecture for which to download the `terraform` binary.
+  arch: amd64
 # imagePullPolicy -- The imagePullPolicy to be used on the operator.
 imagePullPolicy: IfNotPresent
 # watchNamespace -- The value to be set on the `WATCH_NAMESPACE` environment variable.

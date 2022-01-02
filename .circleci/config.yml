@@ -117,6 +117,11 @@ jobs:
         key: amphibian-golang-cache-{{ checksum "go.sum" }}
         paths:
           - /home/circleci/go/pkg/mod/cache
+
+  build-and-push-amd64-image:
+    executor: vm
+    steps:
+    - checkout
     - run:
         name: Install notary
         command: |
@@ -124,21 +129,26 @@ jobs:
           chmod +x notary
           sudo mv notary /usr/local/bin
     - run:
-        name: Push image
+        name: Log in to Docker Hub
         command: |
           docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_ACCESS_TOKEN
+    - run:
+        name: Build and push amd64 image
+        command: |
+          docker buildx create --name cci-builder --use
           echo $ENCODED_NOTARY_ROLE_KEY | base64 -d > ${HOME}/amphibian-circleci.key
           export NOTARY_DELEGATION_PASSPHRASE=$NOTARY_ROLE_PASSPHRASE
           notary -s https://notary.docker.io -d ~/.docker/trust key import ${HOME}/amphibian-circleci.key --role amphibian-circleci
           export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$NOTARY_DELEGATION_PASSPHRASE
-          VERSION=${CIRCLE_TAG:-latest}
           OPERATOR_BUILD_ARGS="--build-arg GIT_COMMIT=$CIRCLE_SHA1 --build-arg GIT_TAG=$CIRCLE_TAG --build-arg COMMIT_TIMESTAMP=$(git log -1 --format=%at) --build-arg AUTHOR_EMAIL=$(git log -1 --format=%ae) --build-arg SIGNATURE_KEY=$(git log -1 --format=%GK)"
           export DOCKER_CONTENT_TRUST=1
+          VERSION=${CIRCLE_TAG:-latest}
           docker buildx build --progress=plain --platform=linux/amd64 --load $OPERATOR_BUILD_ARGS . -t patoarvizu/amphibian:latest-amd64 -t patoarvizu/amphibian:$CIRCLE_SHA1-amd64 -t patoarvizu/amphibian:$VERSION-amd64
           docker push patoarvizu/amphibian:latest-amd64
           docker push patoarvizu/amphibian:$CIRCLE_SHA1-amd64
           docker push patoarvizu/amphibian:$VERSION-amd64
         no_output_timeout: 30m
+
   push-multi-arch:
     executor: vm
     steps:
@@ -186,6 +196,13 @@ workflows:
   build-operator:
     jobs:
     - test:
+        context: authentication-tokens
+        filters:
+          tags:
+            only: /^v\d+\.\d+.\d+$/
+    - build-and-push-amd64-image:
+        requires:
+        - test
         context: authentication-tokens
         filters:
           tags:

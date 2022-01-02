@@ -17,7 +17,24 @@ spec:
       annotations: {{ toYaml .Values.podAnnotations | nindent 8 }}
       {{- end }}
     spec:
-      serviceAccountName: amphibian  
+      serviceAccountName: amphibian
+      initContainers:
+      - name: install-terraform
+        image: {{ .Values.terraformBinary.initContainerImage }}
+        command:
+        - sh
+        - -c
+        - 'wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_${TERRAFORM_OS}_${TERRAFORM_ARCH}.zip && unzip terraform_${TERRAFORM_VERSION}_${TERRAFORM_OS}_${TERRAFORM_ARCH}.zip && cp terraform /terraform-bin/'
+        volumeMounts:
+        - mountPath: /terraform-bin
+          name: terraform-bin
+        env:
+        - name: TERRAFORM_VERSION
+          value: {{ .Values.terraformBinary.version }}
+        - name: TERRAFORM_OS
+          value: {{ .Values.terraformBinary.operatingSystem }}
+        - name: TERRAFORM_ARCH
+          value: {{ .Values.terraformBinary.arch }}
       containers:
       - args:
         - --enable-leader-election
@@ -38,6 +55,8 @@ spec:
         volumeMounts:
         - mountPath: /terraform
           name: terraform
+        - mountPath: /terraform-bin
+          name: terraform-bin
         ports:
         - name: http-metrics
           containerPort: 8080
@@ -45,3 +64,6 @@ spec:
       - emptyDir:
           medium: Memory
         name: terraform
+      - emptyDir:
+          medium: Memory
+        name: terraform-bin

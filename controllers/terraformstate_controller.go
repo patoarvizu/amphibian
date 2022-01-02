@@ -136,14 +136,14 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	defer outputsFile.Close()
 	outputsFile.Write(outputs.Bytes())
 
-	cmd := exec.Command("terraform", "apply", "-auto-approve")
+	cmd := exec.Command("/terraform-bin/terraform", "apply", "-auto-approve")
 	cmd.Dir = stateDir
 	err = cmd.Run()
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	cmd = exec.Command("terraform", "output", "-json")
+	cmd = exec.Command("/terraform-bin/terraform", "output", "-json")
 	cmd.Dir = stateDir
 	var out bytes.Buffer
 	cmd.Stdout = &out

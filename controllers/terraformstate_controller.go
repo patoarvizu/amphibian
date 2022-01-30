@@ -103,6 +103,8 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		dataBody.SetAttributeValue("config", createS3BackendBody(state.Spec.S3Config))
 	case "consul":
 		dataBody.SetAttributeValue("config", createConsulBackendBody(state.Spec.ConsulConfig))
+	case "kubernetes":
+		dataBody.SetAttributeValue("config", createKubernetesBackendBody(state.Spec.KubernetesConfig))
 	}
 	dataFile, err := os.Create(fmt.Sprintf("%s/data.tf", stateDir))
 	if err != nil {
@@ -379,6 +381,23 @@ func createConsulBackendBody(config terraformv1.ConsulConfig) cty.Value {
 	if len(config.KeyFile) > 0 {
 		c["key_file"] = cty.StringVal(config.KeyFile)
 	}
+	return cty.ObjectVal(c)
+}
+
+func createKubernetesBackendBody(config terraformv1.KubernetesConfig) cty.Value {
+	c := make(map[string]cty.Value)
+	c["secret_suffix"] = cty.StringVal(config.SecretSuffix)
+	if len(config.Namespace) > 0 {
+		c["namespace"] = cty.StringVal(config.Namespace)
+	}
+	if len(config.Host) > 0 {
+		c["host"] = cty.StringVal(config.Host)
+	}
+	if len(config.ConfigPath) > 0 {
+		c["configP_path"] = cty.StringVal(config.ConfigPath)
+	}
+	c["in_cluster_config"] = cty.BoolVal(config.InClusterConfig)
+	c["insecure"] = cty.BoolVal(config.Insecure)
 	return cty.ObjectVal(c)
 }
 

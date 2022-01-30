@@ -133,6 +133,35 @@ func createConsulStateConfig(targetType string) (*terraformv1.TerraformState, er
 	return s, nil
 }
 
+func createKubernetesStateConfig(targetType string) (*terraformv1.TerraformState, error) {
+	s := &terraformv1.TerraformState{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "TerraformState",
+			APIVersion: "terraform.patoarvizu.dev/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-kubernetes",
+			Namespace: "default",
+		},
+		Spec: terraformv1.TerraformStateSpec{
+			Type: "kubernetes",
+			KubernetesConfig: terraformv1.KubernetesConfig{
+				SecretSuffix:    "state",
+				InClusterConfig: true,
+			},
+			Target: terraformv1.Target{
+				Type: targetType,
+				Name: "test-kubernetes",
+			},
+		},
+	}
+	err := k8sClient.Create(context.TODO(), s)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
@@ -237,6 +266,28 @@ var _ = Describe("With the controller running", func() {
 	When("Deploying a TerraformState object with 'consul' config and target type 'secret'", func() {
 		It("Should create the target Secret", func() {
 			state, err = createConsulStateConfig("secret")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(state).ToNot(BeNil())
+			err = validateStateTargetSecret(state)
+			Expect(err).ToNot(HaveOccurred())
+			err = k8sClient.Delete(context.TODO(), state)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	When("Deploying a TerraformState object with 'kubernetes' config and target type 'configmap'", func() {
+		It("Should create the target ConfigMap", func() {
+			state, err = createKubernetesStateConfig("configmap")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(state).ToNot(BeNil())
+			err = validateStateTargetConfigMap(state)
+			Expect(err).ToNot(HaveOccurred())
+			err = k8sClient.Delete(context.TODO(), state)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	When("Deploying a TerraformState object with 'kubernetes' config and target type 'secret'", func() {
+		It("Should create the target Secret", func() {
+			state, err = createKubernetesStateConfig("secret")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(state).ToNot(BeNil())
 			err = validateStateTargetSecret(state)

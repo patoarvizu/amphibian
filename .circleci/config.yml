@@ -99,6 +99,7 @@ jobs:
         name: Setup environment
         command: |
           export KUBECONFIG=~/.k3d/k3s-default-config
+          export KUBE_CONFIG_PATH=~/.k3d/k3s-default-config
           k3d cluster create --image rancher/k3s:v1.21.8-k3s1 --port 8500:30058@server[0] # --k3s-server-arg "--kube-apiserver-arg=feature-gates=ServerSideApply=false"
           k3d image import patoarvizu/amphibian:latest
           cd test/consul && helmfile sync

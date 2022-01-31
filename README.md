@@ -5,20 +5,20 @@
 
 <!-- TOC -->
 
-- [Amphibian](#amphibian)
-  - [Intro](#intro)
-  - [Design](#design)
-  - [Configuration](#configuration)
-    - [Backends](#backends)
-      - [Remote (Terraform Cloud)](#remote-terraform-cloud)
-      - [S3](#s3)
-      - [Consul](#consul)
-    - [Target](#target)
-      - [Values](#values)
-  - [For security nerds](#for-security-nerds)
-    - [Docker images are signed and published to Docker Hub's Notary server](#docker-images-are-signed-and-published-to-docker-hubs-notary-server)
-    - [Docker images are labeled with Git and GPG metadata](#docker-images-are-labeled-with-git-and-gpg-metadata)
-  - [Multi-architecture images](#multi-architecture-images)
+- [Intro](#intro)
+- [Design](#design)
+- [Configuration](#configuration)
+  - [Backends](#backends)
+    - [Remote (Terraform Cloud)](#remote-terraform-cloud)
+    - [S3](#s3)
+    - [Consul](#consul)
+    - [Kubernetes](#kubernetes)
+  - [Target](#target)
+    - [Values](#values)
+- [For security nerds](#for-security-nerds)
+  - [Docker images are signed and published to Docker Hub's Notary server](#docker-images-are-signed-and-published-to-docker-hubs-notary-server)
+  - [Docker images are labeled with Git and GPG metadata](#docker-images-are-labeled-with-git-and-gpg-metadata)
+- [Multi-architecture images](#multi-architecture-images)
 
 <!-- /TOC -->
 
@@ -99,6 +99,35 @@ Additionally, the following options are not available since they're irrelevant f
 
 - `gzip`
 - `lock`
+
+#### Kubernetes
+
+- [Documentation](https://www.terraform.io/docs/backends/types/kubernetes.html)
+- `type: kubernetes`
+- Configuration block name: `kubernetesConfig`
+
+The following fields can be alternatively be set as environment variables (as documented in the link above):
+
+- `namespace` (`KUBE_NAMESPACE`)
+- `in_cluster_config` (`KUBE_IN_CLUSTER_CONFIG`)
+- `host` (`KUBE_HOST`)
+- `insecure` (`KUBE_INSECURE`)
+- `config_path` (`KUBE_CONFIG_PATH`)
+
+Additionally, the following options are not available, either because they're irrelevant for looking up remote states or because the functionality isn't supported:
+
+- `labels`
+- `username`
+- `password`
+- `client_certificate`
+- `client_key`
+- `cluster_ca_certificate`
+- `config_paths`
+- `config_context`
+- `config_context_auth_info`
+- `config_context_cluster`
+- `token`
+- `exec`
 
 ### Target
 

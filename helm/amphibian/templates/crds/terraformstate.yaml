@@ -59,6 +59,23 @@ spec:
               required:
               - path
               type: object
+            kubernetesConfig:
+              properties:
+                configPath:
+                  type: string
+                host:
+                  type: string
+                inClusterConfig:
+                  type: boolean
+                insecure:
+                  type: boolean
+                namespace:
+                  type: string
+                secretSuffix:
+                  type: string
+              required:
+              - secretSuffix
+              type: object
             remoteConfig:
               properties:
                 hostname:

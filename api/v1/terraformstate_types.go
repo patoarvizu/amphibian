@@ -80,12 +80,22 @@ type ConsulConfig struct {
 	KeyFile     string `json:"keyFile,omitempty"`
 }
 
+type KubernetesConfig struct {
+	SecretSuffix    string `json:"secretSuffix"`
+	Namespace       string `json:"namespace,omitempty"`
+	InClusterConfig bool   `json:"inClusterConfig,omitempty"`
+	Host            string `json:"host,omitempty"`
+	Insecure        bool   `json:"insecure,omitempty"`
+	ConfigPath      string `json:"configPath,omitempty"`
+}
+
 type TerraformStateSpec struct {
-	Type         string       `json:"type"`
-	RemoteConfig RemoteConfig `json:"remoteConfig,omitempty"`
-	S3Config     S3Config     `json:"s3Config,omitempty"`
-	ConsulConfig ConsulConfig `json:"consulConfig,omitempty"`
-	Target       Target       `json:"target"`
+	Type             string           `json:"type"`
+	RemoteConfig     RemoteConfig     `json:"remoteConfig,omitempty"`
+	S3Config         S3Config         `json:"s3Config,omitempty"`
+	ConsulConfig     ConsulConfig     `json:"consulConfig,omitempty"`
+	KubernetesConfig KubernetesConfig `json:"kubernetesConfig,omitempty"`
+	Target           Target           `json:"target"`
 }
 
 type TerraformStateStatus struct{}

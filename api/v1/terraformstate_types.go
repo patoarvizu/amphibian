@@ -89,12 +89,21 @@ type KubernetesConfig struct {
 	ConfigPath      string `json:"configPath,omitempty"`
 }
 
+type GCSConfig struct {
+	Bucket                    string `json:"bucket"`
+	Credentials               string `json:"credentials,omitempty"`
+	ImpersonateServiceAccount string `json:"impersonateServiceAccount,omitempty"`
+	AccessToken               string `json:"accessToken,omitempty"`
+	Prefix                    string `json:"prefix,omitempty"`
+}
+
 type TerraformStateSpec struct {
 	Type             string           `json:"type"`
 	RemoteConfig     RemoteConfig     `json:"remoteConfig,omitempty"`
 	S3Config         S3Config         `json:"s3Config,omitempty"`
 	ConsulConfig     ConsulConfig     `json:"consulConfig,omitempty"`
 	KubernetesConfig KubernetesConfig `json:"kubernetesConfig,omitempty"`
+	GCSConfig        GCSConfig        `json:"gcsConfig,omitempty"`
 	Target           Target           `json:"target"`
 }
 

@@ -105,6 +105,8 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		dataBody.SetAttributeValue("config", createConsulBackendBody(state.Spec.ConsulConfig))
 	case "kubernetes":
 		dataBody.SetAttributeValue("config", createKubernetesBackendBody(state.Spec.KubernetesConfig))
+	case "gcs":
+		dataBody.SetAttributeValue("config", createGCSBackendBody(state.Spec.GCSConfig))
 	}
 	dataFile, err := os.Create(fmt.Sprintf("%s/data.tf", stateDir))
 	if err != nil {
@@ -398,6 +400,24 @@ func createKubernetesBackendBody(config terraformv1.KubernetesConfig) cty.Value 
 	}
 	c["in_cluster_config"] = cty.BoolVal(config.InClusterConfig)
 	c["insecure"] = cty.BoolVal(config.Insecure)
+	return cty.ObjectVal(c)
+}
+
+func createGCSBackendBody(config terraformv1.GCSConfig) cty.Value {
+	c := make(map[string]cty.Value)
+	c["bucket"] = cty.StringVal(config.Bucket)
+	if len(config.Credentials) > 0 {
+		c["credentials"] = cty.StringVal(config.Credentials)
+	}
+	if len(config.ImpersonateServiceAccount) > 0 {
+		c["impersonate_service_account"] = cty.StringVal(config.ImpersonateServiceAccount)
+	}
+	if len(config.AccessToken) > 0 {
+		c["access_token"] = cty.StringVal(config.AccessToken)
+	}
+	if len(config.Prefix) > 0 {
+		c["prefix"] = cty.StringVal(config.Prefix)
+	}
 	return cty.ObjectVal(c)
 }
 

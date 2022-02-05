@@ -21,3 +21,14 @@ authEnvVars:
       name: consul-token
 - name: AWS_REGION
   value: us-east-1
+- name: GOOGLE_BACKEND_CREDENTIALS
+  value: /gcs-credentials/credentials.json
+
+volumes:
+- name: gcs-credentials
+  secret:
+    secretName: gcs-credentials
+
+volumeMounts:
+- mountPath: /gcs-credentials
+  name: gcs-credentials

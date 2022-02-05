@@ -57,6 +57,9 @@ spec:
           name: terraform
         - mountPath: /terraform-bin
           name: terraform-bin
+        {{- if .Values.volumeMounts }}
+        {{- toYaml .Values.volumeMounts | nindent 8 }}
+        {{- end }}
         ports:
         - name: http-metrics
           containerPort: 8080
@@ -67,3 +70,6 @@ spec:
       - emptyDir:
           medium: Memory
         name: terraform-bin
+      {{- if .Values.volumes }}
+      {{- toYaml .Values.volumes | nindent 6 }}
+      {{- end }}

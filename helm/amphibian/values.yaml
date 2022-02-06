@@ -36,3 +36,7 @@ rbac:
     - patch
     - update
     - watch
+# volumes: -- List of [`v1.Volume`](https://pkg.go.dev/k8s.io/api/core/v1#Volume) objects to be appended as-is to the amphibian workloads.
+volumes:
+# volumeMounts -- List of [`v1.VolumeMount`](https://pkg.go.dev/k8s.io/api/core/v1#VolumeMount) objects to be appended as-is to the amphibian workloads
+volumeMounts:

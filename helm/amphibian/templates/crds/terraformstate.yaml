@@ -59,6 +59,21 @@ spec:
               required:
               - path
               type: object
+            gcsConfig:
+              properties:
+                accessToken:
+                  type: string
+                bucket:
+                  type: string
+                credentials:
+                  type: string
+                impersonateServiceAccount:
+                  type: string
+                prefix:
+                  type: string
+              required:
+              - bucket
+              type: object
             kubernetesConfig:
               properties:
                 configPath:

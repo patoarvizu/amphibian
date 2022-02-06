@@ -2,7 +2,15 @@ apiVersion: v1
 entries:
   amphibian:
   - apiVersion: v2
-    created: "2022-01-02T18:25:11.882659-05:00"
+    created: "2022-02-05T19:37:50.880929-05:00"
+    description: Amphibian
+    digest: b55eee80c27b977068f72ddebfdb4b94cb6b8d6028cec0d425c6fa1f2e166a8a
+    name: amphibian
+    urls:
+    - https://patoarvizu.github.io/amphibian/amphibian-0.0.3.tgz
+    version: 0.0.3
+  - apiVersion: v2
+    created: "2022-02-05T19:37:50.880402-05:00"
     description: Amphibian
     digest: 1dce78945b3827ad313e2528ee4448655c9300f3e9d7432c47044a4248293506
     name: amphibian
@@ -10,7 +18,7 @@ entries:
     - https://patoarvizu.github.io/amphibian/amphibian-0.0.2.tgz
     version: 0.0.2
   - apiVersion: v2
-    created: "2022-01-02T18:25:11.882226-05:00"
+    created: "2022-02-05T19:37:50.879542-05:00"
     description: Amphibian
     digest: 20160d19184c727bcb2f3a6b0cfe1a4b7f78c94efa8c525457181729ee1bbdfb
     name: amphibian
@@ -18,11 +26,11 @@ entries:
     - https://patoarvizu.github.io/amphibian/amphibian-0.0.1.tgz
     version: 0.0.1
   - apiVersion: v2
-    created: "2022-01-02T18:25:11.881453-05:00"
+    created: "2022-02-05T19:37:50.87788-05:00"
     description: Amphibian
     digest: 3c86045380e383b6585b5d14a7cef94452a369975cff5a33073500158a052889
     name: amphibian
     urls:
     - https://patoarvizu.github.io/amphibian/amphibian-0.0.0.tgz
     version: 0.0.0
-generated: "2022-01-02T18:25:11.88049-05:00"
+generated: "2022-02-05T19:37:50.873991-05:00"

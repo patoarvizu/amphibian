@@ -1,6 +1,6 @@
 # amphibian
 
-![Version: 0.0.2](https://img.shields.io/badge/Version-0.0.2-informational?style=flat-square)
+![Version: 0.0.3](https://img.shields.io/badge/Version-0.0.3-informational?style=flat-square)
 
 Amphibian
 
@@ -19,4 +19,6 @@ Amphibian
 | terraformBinary.initContainerImage | string | `"alpine:3.15.0"` | The image to use for the init container that installs the target `terraform` binary. |
 | terraformBinary.operatingSystem | string | `"linux"` | The operating system for which to download the `terraform` binary. |
 | terraformBinary.version | string | `"1.1.2"` | The version of the `terraform` binary. Note that it's not possible to use `latest`, or use "partial" versions (e.g. `1`, or `1.1`) so you have to specify the full version. |
+| volumeMounts | string | `nil` | List of [`v1.VolumeMount`](https://pkg.go.dev/k8s.io/api/core/v1#VolumeMount) objects to be appended as-is to the amphibian workloads |
+| volumes | string | `nil` |  |
 | watchNamespace | string | `""` | The value to be set on the `WATCH_NAMESPACE` environment variable. |

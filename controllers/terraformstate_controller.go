@@ -396,7 +396,7 @@ func createKubernetesBackendBody(config terraformv1.KubernetesConfig) cty.Value 
 		c["host"] = cty.StringVal(config.Host)
 	}
 	if len(config.ConfigPath) > 0 {
-		c["configP_path"] = cty.StringVal(config.ConfigPath)
+		c["config_path"] = cty.StringVal(config.ConfigPath)
 	}
 	c["in_cluster_config"] = cty.BoolVal(config.InClusterConfig)
 	c["insecure"] = cty.BoolVal(config.Insecure)

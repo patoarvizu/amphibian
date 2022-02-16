@@ -108,7 +108,7 @@ jobs:
           export CONSUL_HTTP_TOKEN=$(kubectl -n consul get secret consul-bootstrap-acl-token -o json | jq -r '.data.token' | base64 -d)
           cd ../consul-state && terraform init && terraform apply -auto-approve
           cd ../kubernetes-state && terraform init && terraform apply -auto-approve
-          cd ../postgres-stage && terraform init && terraform apply -auto-approve
+          cd ../postgres-state && terraform init && terraform apply -auto-approve
           export AMP_CONSUL_TOKEN=${CONSUL_HTTP_TOKEN}
           cd ../secrets && helmfile sync
           cd ../amphibian && helmfile sync

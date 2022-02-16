@@ -1,0 +1,17 @@
+repositories:
+- name: bitnami
+  url: https://charts.bitnami.com/bitnami
+
+releases:
+- name: postgresql
+  namespace: pg
+  chart: bitnami/postgresql
+  version: 11.0.4
+  values:
+  - ./values.yaml
+
+helmDefaults:
+  kubeContext: k3d-k3s-default
+  args:
+  - --kubeconfig
+  - {{ requiredEnv "HOME" }}/.k3d/k3s-default-config

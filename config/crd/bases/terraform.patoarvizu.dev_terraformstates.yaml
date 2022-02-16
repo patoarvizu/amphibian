@@ -91,6 +91,13 @@ spec:
               required:
               - secretSuffix
               type: object
+            postgresConfig:
+              properties:
+                connStr:
+                  type: string
+                schemaName:
+                  type: string
+              type: object
             remoteConfig:
               properties:
                 hostname:

@@ -103,10 +103,12 @@ jobs:
           k3d cluster create --image rancher/k3s:v1.21.8-k3s1 --port 8500:30058@server[0] # --k3s-server-arg "--kube-apiserver-arg=feature-gates=ServerSideApply=false"
           k3d image import patoarvizu/amphibian:latest
           cd test/consul && helmfile sync
+          cd ../postgres && helmfile sync
           cd ../consul-service && helmfile sync
           export CONSUL_HTTP_TOKEN=$(kubectl -n consul get secret consul-bootstrap-acl-token -o json | jq -r '.data.token' | base64 -d)
           cd ../consul-state && terraform init && terraform apply -auto-approve
           cd ../kubernetes-state && terraform init && terraform apply -auto-approve
+          cd ../postgres-stage && terraform init && terraform apply -auto-approve
           export AMP_CONSUL_TOKEN=${CONSUL_HTTP_TOKEN}
           cd ../secrets && helmfile sync
           cd ../amphibian && helmfile sync

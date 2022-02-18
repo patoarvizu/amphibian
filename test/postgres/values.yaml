@@ -1,0 +1,11 @@
+global:
+  postgresql:
+    auth:
+      postgresPassword: postgres123
+      database: terraform_backend
+
+primary:
+  service:
+    type: NodePort
+    nodePorts:
+      postgresql: 32345

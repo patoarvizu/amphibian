@@ -97,6 +97,11 @@ type GCSConfig struct {
 	Prefix                    string `json:"prefix,omitempty"`
 }
 
+type PostgresConfig struct {
+	ConnStr    string `json:"connStr,omitempty"`
+	SchemaName string `json:"schemaName,omitempty"`
+}
+
 type TerraformStateSpec struct {
 	Type             string           `json:"type"`
 	RemoteConfig     RemoteConfig     `json:"remoteConfig,omitempty"`
@@ -104,6 +109,7 @@ type TerraformStateSpec struct {
 	ConsulConfig     ConsulConfig     `json:"consulConfig,omitempty"`
 	KubernetesConfig KubernetesConfig `json:"kubernetesConfig,omitempty"`
 	GCSConfig        GCSConfig        `json:"gcsConfig,omitempty"`
+	PostgresConfig   PostgresConfig   `json:"postgresConfig,omitempty"`
 	Target           Target           `json:"target"`
 }
 

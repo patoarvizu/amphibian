@@ -191,6 +191,34 @@ func createGCSStateConfig(targetType string) (*terraformv1.TerraformState, error
 	return s, nil
 }
 
+func createPostgresStateConfig(targetType string) (*terraformv1.TerraformState, error) {
+	s := &terraformv1.TerraformState{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "TerraformState",
+			APIVersion: "terraform.patoarvizu.dev/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-pg",
+			Namespace: "default",
+		},
+		Spec: terraformv1.TerraformStateSpec{
+			Type: "pg",
+			PostgresConfig: terraformv1.PostgresConfig{
+				ConnStr: "postgres://postgres:postgres123@postgresql.pg:5432/terraform_backend?sslmode=disable",
+			},
+			Target: terraformv1.Target{
+				Type: targetType,
+				Name: "test-pg",
+			},
+		},
+	}
+	err := k8sClient.Create(context.TODO(), s)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
@@ -339,6 +367,28 @@ var _ = Describe("With the controller running", func() {
 	When("Deploying a TerraformState object with 'gcs' config and target type 'secret'", func() {
 		It("Should create the target Secret", func() {
 			state, err = createGCSStateConfig("secret")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(state).ToNot(BeNil())
+			err = validateStateTargetSecret(state)
+			Expect(err).ToNot(HaveOccurred())
+			err = k8sClient.Delete(context.TODO(), state)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	When("Deploying a TerraformState object with 'pg' config and target type 'configmap'", func() {
+		It("Should create the target ConfigMap", func() {
+			state, err = createPostgresStateConfig("configmap")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(state).ToNot(BeNil())
+			err = validateStateTargetConfigMap(state)
+			Expect(err).ToNot(HaveOccurred())
+			err = k8sClient.Delete(context.TODO(), state)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	When("Deploying a TerraformState object with 'pg' config and target type 'secret'", func() {
+		It("Should create the target Secret", func() {
+			state, err = createPostgresStateConfig("secret")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(state).ToNot(BeNil())
 			err = validateStateTargetSecret(state)

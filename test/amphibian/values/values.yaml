@@ -23,6 +23,8 @@ authEnvVars:
   value: us-east-1
 - name: GOOGLE_BACKEND_CREDENTIALS
   value: /gcs-credentials/credentials.json
+- name: AMP_PSQL_CONN_STR
+  value: postgres://postgres:postgres123@localhost:5432/terraform_backend?sslmode=disable
 
 volumes:
 - name: gcs-credentials

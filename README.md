@@ -13,6 +13,7 @@
     - [S3](#s3)
     - [Consul](#consul)
     - [Kubernetes](#kubernetes)
+    - [Postgres](#postgres)
   - [Target](#target)
     - [Values](#values)
 - [For security nerds](#for-security-nerds)
@@ -128,6 +129,21 @@ Additionally, the following options are not available, either because they're ir
 - `config_context_cluster`
 - `token`
 - `exec`
+
+#### Postgres
+
+- [Documentation](https://www.terraform.io/language/settings/backends/pg)
+- `type: pg`
+- Configuration block name: `postgresConfig`
+- **Note:** Postgres v10 and above support `scram-sha-256` as a password encryption mechanism, which is only supported on [Terraform 0.14](https://github.com/hashicorp/terraform/pull/26887)!
+
+The `pg` backend doesn't support configuration via environment variables in Terraform, but to avoid having to set credentials explicitly on `TerraformState` objects, Amphibian allows the injection of the connection string via the `AMP_PSQL_CONN_STR` environment variable. Note that this variable should be the full URL, including the `postgres://` prefix. The `schema_name` field is supported as documented in the link above.
+
+Additionally, the following options are not available since they're irrelevant for looking up remote states:
+
+- `skip_schema_creation`
+- `skip_table_creation`
+- `skip_index_creation`
 
 ### Target
 

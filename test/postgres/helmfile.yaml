@@ -7,6 +7,7 @@ releases:
   namespace: pg
   chart: bitnami/postgresql
   version: 11.0.4
+  wait: true
   values:
   - ./values.yaml
 

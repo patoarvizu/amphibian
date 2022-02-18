@@ -3,6 +3,7 @@ releases:
   namespace: consul
   chart: ./chart
   version: 0.0.0
+  wait: true
 
 helmDefaults:
   kubeContext: k3d-k3s-default

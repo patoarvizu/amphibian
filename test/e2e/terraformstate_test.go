@@ -204,7 +204,7 @@ func createPostgresStateConfig(targetType string) (*terraformv1.TerraformState, 
 		Spec: terraformv1.TerraformStateSpec{
 			Type: "pg",
 			PostgresConfig: terraformv1.PostgresConfig{
-				ConnStr: "postgres://postgres:postgres123@localhost:5432/terraform_backend?sslmode=disable",
+				ConnStr: "postgres://postgres:postgres123@postgresql.pg:5432/terraform_backend?sslmode=disable",
 			},
 			Target: terraformv1.Target{
 				Type: targetType,

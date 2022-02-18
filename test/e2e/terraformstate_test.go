@@ -202,7 +202,7 @@ func createPostgresStateConfig(targetType string) (*terraformv1.TerraformState, 
 			Namespace: "default",
 		},
 		Spec: terraformv1.TerraformStateSpec{
-			Type: "gcs",
+			Type: "pg",
 			PostgresConfig: terraformv1.PostgresConfig{
 				ConnStr: "postgres://postgres:postgres123@localhost:5432/terraform_backend?sslmode=disable",
 			},

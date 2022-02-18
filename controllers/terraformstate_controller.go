@@ -427,8 +427,8 @@ func createPostgresBackendBody(config terraformv1.PostgresConfig) cty.Value {
 	c := make(map[string]cty.Value)
 	if len(config.ConnStr) > 0 {
 		c["conn_str"] = cty.StringVal(config.ConnStr)
-	} else if _, ok := os.LookupEnv("TF_PSQL_CONN_STR"); ok {
-		c["conn_str"] = cty.StringVal(os.Getenv("TF_PSQL_CONN_STR"))
+	} else if _, ok := os.LookupEnv("AMP_PSQL_CONN_STR"); ok {
+		c["conn_str"] = cty.StringVal(os.Getenv("AMP_PSQL_CONN_STR"))
 	}
 	if len(config.SchemaName) > 0 {
 		c["schema_name"] = cty.StringVal(config.SchemaName)

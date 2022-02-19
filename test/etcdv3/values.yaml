@@ -1,0 +1,8 @@
+auth:
+  rbac:
+    rootPassword: root123
+
+service:
+  type: NodePort
+  nodePorts:
+    client: 30732

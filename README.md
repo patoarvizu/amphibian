@@ -15,6 +15,7 @@
     - [Kubernetes](#kubernetes)
     - [Postgres](#postgres)
     - [Artifactory](#artifactory)
+    - [Etcd V3](#etcd-v3)
   - [Target](#target)
     - [Values](#values)
 - [For security nerds](#for-security-nerds)
@@ -157,6 +158,17 @@ The following fields can be alternatively be set as environment variables (as do
 - `username` (`ARTIFACTORY_USERNAME`)
 - `password` (`ARTIFACTORY_PASSWORD`)
 - `url` (`ARTIFACTORY_URL`)
+
+#### Etcd V3
+
+- [Documentation](https://www.terraform.io/language/settings/backends/etcdv3)
+- `type: etcdv3`
+- Configuration block name: `etcdv3Config`
+
+The following fields can be alternatively be set as environment variables (as documented in the link above):
+
+- `username` (`ETCDV3_USERNAME`)
+- `password` (`ETCDV3_PASSWORD`)
 
 ### Target
 

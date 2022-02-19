@@ -36,6 +36,22 @@ spec:
           type: object
         spec:
           properties:
+            artifactoryConfig:
+              properties:
+                password:
+                  type: string
+                repo:
+                  type: string
+                subpath:
+                  type: string
+                url:
+                  type: string
+                username:
+                  type: string
+              required:
+              - repo
+              - subpath
+              type: object
             consulConfig:
               properties:
                 accessToken:

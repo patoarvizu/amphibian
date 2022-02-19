@@ -219,6 +219,36 @@ func createPostgresStateConfig(targetType string) (*terraformv1.TerraformState, 
 	return s, nil
 }
 
+func createArtifactoryStateConfig(targetType string) (*terraformv1.TerraformState, error) {
+	s := &terraformv1.TerraformState{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "TerraformState",
+			APIVersion: "terraform.patoarvizu.dev/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-artifactory",
+			Namespace: "default",
+		},
+		Spec: terraformv1.TerraformStateSpec{
+			Type: "artifactory",
+			ArtifactoryConfig: terraformv1.ArtifactoryConfig{
+				Url:     "http://localhost:8082/artifactory",
+				Repo:    "example-repo-local",
+				Subpath: "/",
+			},
+			Target: terraformv1.Target{
+				Type: targetType,
+				Name: "test-artifactory",
+			},
+		},
+	}
+	err := k8sClient.Create(context.TODO(), s)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 

@@ -1,0 +1,11 @@
+artifactory:
+  postgresql:
+    postgresqlPassword: postgres123
+  artifactory:
+    service:
+      type: NodePort
+    nodePort: 32082
+    admin:
+      password: admin123
+  nginx:
+    enabled: false

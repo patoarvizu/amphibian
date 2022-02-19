@@ -109,6 +109,8 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		dataBody.SetAttributeValue("config", createGCSBackendBody(state.Spec.GCSConfig))
 	case "pg":
 		dataBody.SetAttributeValue("config", createPostgresBackendBody(state.Spec.PostgresConfig))
+	case "artifactory":
+		dataBody.SetAttributeValue("config", createArtifactoryBackendBody(state.Spec.ArtifactoryConfig))
 	}
 	dataFile, err := os.Create(fmt.Sprintf("%s/data.tf", stateDir))
 	if err != nil {
@@ -433,6 +435,22 @@ func createPostgresBackendBody(config terraformv1.PostgresConfig) cty.Value {
 	if len(config.SchemaName) > 0 {
 		c["schema_name"] = cty.StringVal(config.SchemaName)
 	}
+	return cty.ObjectVal(c)
+}
+
+func createArtifactoryBackendBody(config terraformv1.ArtifactoryConfig) cty.Value {
+	c := make(map[string]cty.Value)
+	if len(config.Username) > 0 {
+		c["username"] = cty.StringVal(config.Username)
+	}
+	if len(config.Password) > 0 {
+		c["password"] = cty.StringVal(config.Password)
+	}
+	if len(config.Url) > 0 {
+		c["url"] = cty.StringVal(config.Url)
+	}
+	c["repo"] = cty.StringVal(config.Repo)
+	c["subpath"] = cty.StringVal(config.Subpath)
 	return cty.ObjectVal(c)
 }
 

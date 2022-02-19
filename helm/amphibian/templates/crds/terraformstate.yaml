@@ -82,6 +82,7 @@ spec:
                 certPath:
                   type: string
                 endpoints:
+                  default: '[]'
                   items:
                     type: string
                   type: array

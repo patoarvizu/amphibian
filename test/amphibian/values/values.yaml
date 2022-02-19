@@ -25,6 +25,10 @@ authEnvVars:
   value: /gcs-credentials/credentials.json
 - name: AMP_PSQL_CONN_STR
   value: postgres://postgres:postgres123@localhost:5432/terraform_backend?sslmode=disable
+- name: ARTIFACTORY_USERNAME
+  value: admin
+- name: ARTIFACTORY_PASSWORD
+  value: admin123
 
 volumes:
 - name: gcs-credentials

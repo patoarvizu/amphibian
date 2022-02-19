@@ -102,15 +102,24 @@ type PostgresConfig struct {
 	SchemaName string `json:"schemaName,omitempty"`
 }
 
+type ArtifactoryConfig struct {
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+	Url      string `json:"url,omitempty"`
+	Repo     string `json:"repo"`
+	Subpath  string `json:"subpath"`
+}
+
 type TerraformStateSpec struct {
-	Type             string           `json:"type"`
-	RemoteConfig     RemoteConfig     `json:"remoteConfig,omitempty"`
-	S3Config         S3Config         `json:"s3Config,omitempty"`
-	ConsulConfig     ConsulConfig     `json:"consulConfig,omitempty"`
-	KubernetesConfig KubernetesConfig `json:"kubernetesConfig,omitempty"`
-	GCSConfig        GCSConfig        `json:"gcsConfig,omitempty"`
-	PostgresConfig   PostgresConfig   `json:"postgresConfig,omitempty"`
-	Target           Target           `json:"target"`
+	Type              string            `json:"type"`
+	RemoteConfig      RemoteConfig      `json:"remoteConfig,omitempty"`
+	S3Config          S3Config          `json:"s3Config,omitempty"`
+	ConsulConfig      ConsulConfig      `json:"consulConfig,omitempty"`
+	KubernetesConfig  KubernetesConfig  `json:"kubernetesConfig,omitempty"`
+	GCSConfig         GCSConfig         `json:"gcsConfig,omitempty"`
+	PostgresConfig    PostgresConfig    `json:"postgresConfig,omitempty"`
+	ArtifactoryConfig ArtifactoryConfig `json:"artifactoryConfig,omitempty"`
+	Target            Target            `json:"target"`
 }
 
 type TerraformStateStatus struct{}

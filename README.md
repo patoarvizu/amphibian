@@ -14,6 +14,7 @@
     - [Consul](#consul)
     - [Kubernetes](#kubernetes)
     - [Postgres](#postgres)
+    - [Artifactory](#artifactory)
   - [Target](#target)
     - [Values](#values)
 - [For security nerds](#for-security-nerds)
@@ -144,6 +145,18 @@ Additionally, the following options are not available since they're irrelevant f
 - `skip_schema_creation`
 - `skip_table_creation`
 - `skip_index_creation`
+
+#### Artifactory
+
+- [Documentation](https://www.terraform.io/language/settings/backends/artifactory)
+- `type: artifactory`
+- Configuration block name: `artifactoryConfig`
+
+The following fields can be alternatively be set as environment variables (as documented in the link above):
+
+- `username` (`ARTIFACTORY_USERNAME`)
+- `password` (`ARTIFACTORY_PASSWORD`)
+- `url` (`ARTIFACTORY_URL`)
 
 ### Target
 

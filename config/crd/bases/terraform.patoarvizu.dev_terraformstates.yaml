@@ -76,6 +76,7 @@ spec:
               - path
               type: object
             etcdv3Config:
+              nullable: true
               properties:
                 caCertPath:
                   type: string

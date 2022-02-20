@@ -131,8 +131,9 @@ type TerraformStateSpec struct {
 	GCSConfig         GCSConfig         `json:"gcsConfig,omitempty"`
 	PostgresConfig    PostgresConfig    `json:"postgresConfig,omitempty"`
 	ArtifactoryConfig ArtifactoryConfig `json:"artifactoryConfig,omitempty"`
-	EtcdV3Config      EtcdV3Config      `json:"etcdv3Config,omitempty"`
-	Target            Target            `json:"target"`
+	// +nullable
+	EtcdV3Config EtcdV3Config `json:"etcdv3Config,omitempty"`
+	Target       Target       `json:"target"`
 }
 
 type TerraformStateStatus struct{}

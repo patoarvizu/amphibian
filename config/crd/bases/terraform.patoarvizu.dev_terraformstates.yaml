@@ -85,6 +85,7 @@ spec:
                 endpoints:
                   items:
                     type: string
+                  nullable: true
                   type: array
                 keyPath:
                   type: string

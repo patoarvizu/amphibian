@@ -111,6 +111,7 @@ type ArtifactoryConfig struct {
 }
 
 type EtcdV3Config struct {
+	// +nullable
 	Endpoints       []string `json:"endpoints"`
 	Username        string   `json:"username,omitempty"`
 	Password        string   `json:"password,omitempty"`

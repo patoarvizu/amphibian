@@ -75,6 +75,32 @@ spec:
               required:
               - path
               type: object
+            etcdv3Config:
+              properties:
+                caCertPath:
+                  type: string
+                certPath:
+                  type: string
+                endpoints:
+                  items:
+                    type: string
+                  nullable: true
+                  type: array
+                keyPath:
+                  type: string
+                lock:
+                  type: boolean
+                maxRequestBytes:
+                  type: string
+                password:
+                  type: string
+                prefix:
+                  type: string
+                username:
+                  type: string
+              required:
+              - endpoints
+              type: object
             gcsConfig:
               properties:
                 accessToken:

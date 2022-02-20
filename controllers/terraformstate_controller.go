@@ -111,6 +111,8 @@ func (r *TerraformStateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		dataBody.SetAttributeValue("config", createPostgresBackendBody(state.Spec.PostgresConfig))
 	case "artifactory":
 		dataBody.SetAttributeValue("config", createArtifactoryBackendBody(state.Spec.ArtifactoryConfig))
+	case "etcdv3":
+		dataBody.SetAttributeValue("config", createEtcdV3BackendBody(state.Spec.EtcdV3Config))
 	}
 	dataFile, err := os.Create(fmt.Sprintf("%s/data.tf", stateDir))
 	if err != nil {
@@ -451,6 +453,34 @@ func createArtifactoryBackendBody(config terraformv1.ArtifactoryConfig) cty.Valu
 	}
 	c["repo"] = cty.StringVal(config.Repo)
 	c["subpath"] = cty.StringVal(config.Subpath)
+	return cty.ObjectVal(c)
+}
+
+func createEtcdV3BackendBody(config terraformv1.EtcdV3Config) cty.Value {
+	c := make(map[string]cty.Value)
+	c["endpoints"] = cty.ListVal(createValueList(config.Endpoints))
+	if len(config.Username) > 0 {
+		c["username"] = cty.StringVal(config.Username)
+	}
+	if len(config.Password) > 0 {
+		c["password"] = cty.StringVal(config.Password)
+	}
+	if len(config.Prefix) > 0 {
+		c["prefix"] = cty.StringVal(config.Prefix)
+	}
+	if len(config.Prefix) > 0 {
+		c["ca_cert_path"] = cty.StringVal(config.CACertPath)
+	}
+	if len(config.Prefix) > 0 {
+		c["cert_path"] = cty.StringVal(config.CertPath)
+	}
+	if len(config.Prefix) > 0 {
+		c["key_path"] = cty.StringVal(config.KeyPath)
+	}
+	if len(config.Prefix) > 0 {
+		c["max_request_bytes"] = cty.StringVal(config.MaxRequestBytes)
+	}
+	c["lock"] = cty.BoolVal(config.Lock)
 	return cty.ObjectVal(c)
 }
 

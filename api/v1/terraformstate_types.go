@@ -110,6 +110,19 @@ type ArtifactoryConfig struct {
 	Subpath  string `json:"subpath"`
 }
 
+type EtcdV3Config struct {
+	// +nullable
+	Endpoints       []string `json:"endpoints"`
+	Username        string   `json:"username,omitempty"`
+	Password        string   `json:"password,omitempty"`
+	Prefix          string   `json:"prefix,omitempty"`
+	Lock            bool     `json:"lock,omitempty"`
+	CACertPath      string   `json:"caCertPath,omitempty"`
+	CertPath        string   `json:"certPath,omitempty"`
+	KeyPath         string   `json:"keyPath,omitempty"`
+	MaxRequestBytes string   `json:"maxRequestBytes,omitempty"`
+}
+
 type TerraformStateSpec struct {
 	Type              string            `json:"type"`
 	RemoteConfig      RemoteConfig      `json:"remoteConfig,omitempty"`
@@ -119,6 +132,7 @@ type TerraformStateSpec struct {
 	GCSConfig         GCSConfig         `json:"gcsConfig,omitempty"`
 	PostgresConfig    PostgresConfig    `json:"postgresConfig,omitempty"`
 	ArtifactoryConfig ArtifactoryConfig `json:"artifactoryConfig,omitempty"`
+	EtcdV3Config      EtcdV3Config      `json:"etcdv3Config,omitempty"`
 	Target            Target            `json:"target"`
 }
 

@@ -249,6 +249,36 @@ func createArtifactoryStateConfig(targetType string) (*terraformv1.TerraformStat
 	return s, nil
 }
 
+func createEtcdV3StateConfig(targetType string) (*terraformv1.TerraformState, error) {
+	s := &terraformv1.TerraformState{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "TerraformState",
+			APIVersion: "terraform.patoarvizu.dev/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-etcdv3",
+			Namespace: "default",
+		},
+		Spec: terraformv1.TerraformStateSpec{
+			Type: "etcdv3",
+			EtcdV3Config: terraformv1.EtcdV3Config{
+				Endpoints: []string{"etcdv3.etcdv3:2379"},
+				Username:  "root",
+				Password:  "root123",
+			},
+			Target: terraformv1.Target{
+				Type: targetType,
+				Name: "test-etcdv3",
+			},
+		},
+	}
+	err := k8sClient.Create(context.TODO(), s)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
@@ -419,6 +449,28 @@ var _ = Describe("With the controller running", func() {
 	When("Deploying a TerraformState object with 'pg' config and target type 'secret'", func() {
 		It("Should create the target Secret", func() {
 			state, err = createPostgresStateConfig("secret")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(state).ToNot(BeNil())
+			err = validateStateTargetSecret(state)
+			Expect(err).ToNot(HaveOccurred())
+			err = k8sClient.Delete(context.TODO(), state)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	When("Deploying a TerraformState object with 'etcdv3' config and target type 'configmap'", func() {
+		It("Should create the target ConfigMap", func() {
+			state, err = createEtcdV3StateConfig("configmap")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(state).ToNot(BeNil())
+			err = validateStateTargetConfigMap(state)
+			Expect(err).ToNot(HaveOccurred())
+			err = k8sClient.Delete(context.TODO(), state)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	When("Deploying a TerraformState object with 'etcdv3' config and target type 'secret'", func() {
+		It("Should create the target Secret", func() {
+			state, err = createEtcdV3StateConfig("secret")
 			Expect(err).ToNot(HaveOccurred())
 			Expect(state).ToNot(BeNil())
 			err = validateStateTargetSecret(state)

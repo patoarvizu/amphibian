@@ -100,18 +100,20 @@ jobs:
         command: |
           export KUBECONFIG=~/.k3d/k3s-default-config
           export KUBE_CONFIG_PATH=~/.k3d/k3s-default-config
-          k3d cluster create --image rancher/k3s:v1.21.8-k3s1 --port 8500:30058@server[0] --port 5432:32345@server[0] --port 8082:32082@server[0] # --k3s-server-arg "--kube-apiserver-arg=feature-gates=ServerSideApply=false"
+          k3d cluster create --image rancher/k3s:v1.21.8-k3s1 --port 8500:30058@server[0] --port 5432:32345@server[0] --port 8082:32082@server[0] --port 2379:30732@server[0] # --k3s-server-arg "--kube-apiserver-arg=feature-gates=ServerSideApply=false"
           k3d image import patoarvizu/amphibian:latest
           cd test/consul && helmfile sync
           cd ../consul-service && helmfile sync
           export CONSUL_HTTP_TOKEN=$(kubectl -n consul get secret consul-bootstrap-acl-token -o json | jq -r '.data.token' | base64 -d)
           cd ../postgres && helmfile sync
           cd ../artifactory && helmfile sync
+          cd ../etcdv3 && helmfile sync
           sleep 30
           cd ../consul-state && terraform init && terraform apply -auto-approve
           cd ../kubernetes-state && terraform init && terraform apply -auto-approve
           cd ../postgres-state && terraform init && terraform apply -auto-approve
           cd ../artifactory-state && terraform init && terraform apply -auto-approve
+          cd ../etcdv3-state && terraform init && terraform apply -auto-approve
           export AMP_CONSUL_TOKEN=${CONSUL_HTTP_TOKEN}
           cd ../secrets && helmfile sync
           cd ../amphibian && helmfile sync

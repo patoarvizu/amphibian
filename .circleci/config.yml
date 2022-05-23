@@ -92,7 +92,7 @@ jobs:
         name: Install terraform
         command: |
           curl -L https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip
-          unzip terraform.zip
+          unzip -o terraform.zip
           chmod +x terraform
           sudo mv terraform /usr/local/bin
     - run:

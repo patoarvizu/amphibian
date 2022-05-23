@@ -1,4 +1,7 @@
 resource "kubernetes_manifest" "customresourcedefinition_terraformstates_terraform_patoarvizu_dev" {
+  field_manager {
+    force_conflicts = true
+  }
   manifest = {
     "apiVersion" = "apiextensions.k8s.io/v1"
     "kind" = "CustomResourceDefinition"

@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  snyk: snyk/snyk@0.0.8
+  snyk: snyk/snyk@1.1.2
 
 executors:
   vm:
@@ -91,8 +91,9 @@ jobs:
     - run:
         name: Install terraform
         command: |
+          rm -rf terraform.zip terraform/
           curl -L https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip
-          unzip terraform.zip
+          unzip -o terraform.zip
           chmod +x terraform
           sudo mv terraform /usr/local/bin
     - run:

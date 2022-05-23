@@ -74,6 +74,7 @@ resource "kubernetes_role" "leader_election_role" {
 resource "kubernetes_role_binding" "leader_election_rolebinding" {
   metadata {
     name = "leader-election-rolebinding"
+    namespace = var.create_namespace ? kubernetes_namespace.ns[var.namespace_name].metadata[0].name : data.kubernetes_namespace.ns[var.namespace_name].metadata[0].name
   }
 
   subject {

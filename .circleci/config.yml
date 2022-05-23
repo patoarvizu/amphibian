@@ -91,6 +91,7 @@ jobs:
     - run:
         name: Install terraform
         command: |
+          rm -rf terraform.zip terraform/
           curl -L https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip
           unzip -o terraform.zip
           chmod +x terraform

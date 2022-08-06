@@ -33,6 +33,7 @@ resource "kubernetes_manifest" "servicemonitor_amphibian_metrics" {
     metadata = {
       name = "amphibian-metrics"
       namespace = var.create_namespace ? kubernetes_namespace.ns[var.namespace_name].metadata[0].name : data.kubernetes_namespace.ns[var.namespace_name].metadata[0].name
+      labels = var.service_monitor_custom_labels
     }
     spec = {
       endpoints = [

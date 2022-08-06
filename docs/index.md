@@ -1,6 +1,6 @@
 # amphibian
 
-![Version: 0.0.4](https://img.shields.io/badge/Version-0.0.4-informational?style=flat-square)
+![Version: 0.0.5](https://img.shields.io/badge/Version-0.0.5-informational?style=flat-square)
 
 Amphibian
 
@@ -12,6 +12,7 @@ Amphibian
 | imagePullPolicy | string | `"IfNotPresent"` | The imagePullPolicy to be used on the operator. |
 | imageVersion | string | `"latest"` | The image version used for the operator. |
 | prometheusMonitoring.enable | bool | `false` | Create the `Service` and `ServiceMonitor` objects to enable Prometheus monitoring on the operator. |
+| prometheusMonitoring.serviceMonitor.customLabels | string | `nil` | Custom labels to add to the ServiceMonitor object. |
 | rbac.clusterRoleSecretsAccessRules | list | `[{"apiGroups":[""],"resources":["secrets"],"verbs":["create","get","list","patch","update","watch"]}]` | List of `PolicyRule`s for accessing Kubernetes secrets, to be appended to the `amphibian-manager-role` cluster role. |
 | resources | object | `nil` | The resources requests/limits to be set on the deployment pod spec template. |
 | terraformBinary | object | `{"arch":"amd64","initContainerImage":"alpine:3.15.0","operatingSystem":"linux","version":"1.1.2"}` | Information about the `terraform` binary to inject into the main container. These values will be used to download the binary from `https://releases.hashicorp.com/terraform/<terraformVersion.version>/terraform_<terraformVersion.version>_<terraformVersion.operatingSystem>_<terraformVersion.arch>.zip`. |

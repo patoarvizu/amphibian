@@ -43,6 +43,7 @@ No modules.
 | <a name="input_enable_prometheus_monitoring"></a> [enable\_prometheus\_monitoring](#input\_enable\_prometheus\_monitoring) | Create the `Service` and `ServiceMonitor` objects to enable Prometheus monitoring on the operator. | `bool` | `false` | no |
 | <a name="input_image_version"></a> [image\_version](#input\_image\_version) | The label of the image to run. | `string` | `"latest"` | no |
 | <a name="input_namespace_name"></a> [namespace\_name](#input\_namespace\_name) | The name of the namespace to create or look up. | `string` | `"amp"` | no |
+| <a name="input_service_monitor_custom_labels"></a> [service\_monitor\_custom\_labels](#input\_service\_monitor\_custom\_labels) | Custom labels to add to the `ServiceMonitor` object. | `map` | `{}` | no |
 | <a name="input_terraform_binary_arch"></a> [terraform\_binary\_arch](#input\_terraform\_binary\_arch) | The architecture for which to download the `terraform` binary. | `string` | `"amd64"` | no |
 | <a name="input_terraform_binary_init_container_image"></a> [terraform\_binary\_init\_container\_image](#input\_terraform\_binary\_init\_container\_image) | The image to use for the init container that installs the target `terraform` binary. | `string` | `"alpine:3.15.0"` | no |
 | <a name="input_terraform_binary_operating_system"></a> [terraform\_binary\_operating\_system](#input\_terraform\_binary\_operating\_system) | The operating system for which to download the `terraform` binary. | `string` | `"linux"` | no |

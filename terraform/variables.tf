@@ -52,6 +52,12 @@ variable enable_prometheus_monitoring {
   description = "Create the `Service` and `ServiceMonitor` objects to enable Prometheus monitoring on the operator."
 }
 
+variable service_monitor_custom_labels {
+  type = map
+  default = {}
+  description = "Custom labels to add to the `ServiceMonitor` object."
+}
+
 variable auth_env_vars {
   type = list(object({
     name = string
